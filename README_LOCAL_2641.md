@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 A:q;:
 A
 A
@@ -56,7 +55,3 @@ a
 A
 
 # Projet_LO41
-=======
-# Projet_LO41
-#bonjour
->>>>>>> ac8e9ceb4e77f44863fe2d3667409d7c6c8b1be4
