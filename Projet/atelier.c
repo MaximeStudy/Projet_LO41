@@ -7,9 +7,7 @@
 #define NbMachine	3 //num
 int tabSleepMachine[NbMachine]= {5, 6, 8};
 
-void Hello(void) {
-  printf("Hello, it's me lalalalalalalalalalalaaaa\n");
-}
+
 
 void * fonc_machine(void * arg) {
 int* num=(int*)arg;
