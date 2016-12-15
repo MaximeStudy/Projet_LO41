@@ -8,9 +8,50 @@ opérateur : ihm
       *defaut robot retrait
 
 superviseur :
+  -on crée une liste contenant x liste chainé (x = nb type différent)
   -fonction creePiece :
     . crée la structure d'une piece : type, id, usine (bool)
     . on détermine la machine en fonction du type   :    on regarde quelle table a le meme type que la piece
     . on met la piece dans la liste chainé d'attente du type d'opération
-    
+  
+  signal sigaction(sigusr1,fctEtat)
+    . 
+thread_liste:
+        . On averti la machine du type type qu'une piece est la : pthread_cond_signal(&tab[i]); //a modifier
+        . On se met a dormir pthread_cond_wait(&tab[i],&mutex);
+        . On supprime le premier element du tableau
+        
+        
+machine : 
+  while (1)
+    {
+      			pthread_cond_wait(&tab[i],&mutex);
+            lock(comToAlim)
+            Dans variable global on met le type de la machine
+            (global) courant = n
+            pthread_cond_signal(&robotAlim);
+    }
 
+Robot alimentation :
+       			pthread_cond_wait(&robotAlim);
+            on récupère le type dans la variable globale
+            On récupère &tab[courant][0]
+            on réveil le thread de la liste chainé de la variable courant : pthread_cond_signal(&tab[courant]);
+            
+            if(lock-timewait(&conv,20))
+              raise(sigusr1);
+            
+            On check le tableau du convoyeur à l'emplacement 0 si la case est libre.
+            Si elle est libre, on dépose la piece
+            Si elle est pas libre, on attend
+            
+            
+            
+            
+            
+            
+            unlock(comToAlim)
+
+thread_conv
+      
+            
