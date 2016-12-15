@@ -1,0 +1,16 @@
+opérateur : ihm
+  - menu : 
+    . Un mode normal
+    . Un fichier teste
+    . Un mode dégradé
+      *defaut usinage
+      *defaut convoyeur
+      *defaut robot retrait
+
+superviseur :
+  -fonction creePiece :
+    . crée la structure d'une piece : type, id, usine (bool)
+    . on détermine la machine en fonction du type   :    on regarde quelle table a le meme type que la piece
+    . on met la piece dans la liste chainé d'attente du type d'opération
+    
+
