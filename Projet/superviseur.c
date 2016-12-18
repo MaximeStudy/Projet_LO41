@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/* piece */
 struct piece {
   int num;
   int ope; //operation d'usinage
@@ -8,7 +9,7 @@ struct piece {
 };
 typedef struct piece piece;
 int num=0; //compteur
-int nbOpe=4;
+int nbOpe=4; //nb d'operation differente
 
 /* Liste chainée*/
 struct element
@@ -19,6 +20,67 @@ struct element
 typedef struct element element;
 typedef element* llist;
 llist * mesListeChaineOp;
+
+
+/* Convoyeur*/
+int tailleConv=10;
+piece * conv; //convoyeur
+piece* pieceVideConv; //reference piece vide du convoyeur
+
+void initialiserConvoyeur(){
+    int i;
+    conv=malloc(tailleConv*sizeof(piece));
+    pieceVideConv = malloc(sizeof(piece));
+    pieceVideConv->num = -1;
+    pieceVideConv->ope = -1;
+    pieceVideConv->estUsine = -1;
+
+    for (i =0 ; i<tailleConv; i++){
+        conv[i] = *pieceVideConv;
+    }
+}
+
+void libererConvoyeur(){
+    free(pieceVideConv);
+    free(conv); //libère les ressources alloué
+}
+
+void tournerConvoyeur()
+{
+  piece tmp=conv[tailleConv-1];
+  int i;
+  for(i=tailleConv-1;i>0;i--)
+  {
+    conv[i]=conv[i-1];
+  }
+  conv[0]=tmp;
+}
+
+void ajouterPieceConvoyeur(int position, piece p)
+{
+  if(position<tailleConv && position>=0)
+  {
+    conv[position]=p;
+  }
+}
+
+void afficherConvoyeur()
+{
+    /* Tant que l'on n'est pas au bout de la liste */
+    printf("*****************************************\n");
+    int i;
+    for(i=0;i<tailleConv;i++)
+    {
+        /* On affiche */
+        if(conv[i].num!=-1)
+        {
+          printf("conv[%2d] : %5d \n",i, conv[i].num);
+        }
+        else {
+          printf("conv[%2d] : %5s \n",i,"vide");
+        }
+    }
+}
 
 llist ajouterEnFin(llist liste, piece valeur)
 {
@@ -68,19 +130,42 @@ llist supprimerElementEnTete(llist liste)
     }
 }
 
+piece * recupererElementEnTete(llist liste)
+{
+    if(liste != NULL)
+    {
+        /* Si la liste est non vide, on se prépare à renvoyer l'adresse de
+        l'élément en 2ème position */
+        piece *aRenvoyer = &(liste->val);
+        /* On retourne le nouveau début de la liste */
+        return aRenvoyer;
+    }
+    else
+    {
+        return NULL; //si aucun element dans la liste
+    }
+}
+
 void afficherListe(llist liste)
 {
-    element *tmp = liste;
-    /* Tant que l'on n'est pas au bout de la liste */
     printf("*****************************************\n");
-    while(tmp != NULL)
+    if(liste==NULL)
     {
-        /* On affiche */
-        printf("num   : %5d ", tmp->val.num);
-        printf("Ope   : %5d ", tmp->val.ope);
-        printf("Usine : %5d\n", tmp->val.estUsine);
-        /* On avance d'une case */
-        tmp = tmp->nxt;
+      printf("la liste est vide\n");
+    }
+    else {
+      element *tmp = liste;
+
+      /* Tant que l'on n'est pas au bout de la liste */
+      while(tmp != NULL)
+      {
+          /* On affiche */
+          printf("num   : %5d ", tmp->val.num);
+          printf("Ope   : %5d ", tmp->val.ope);
+          printf("Usine : %5d\n", tmp->val.estUsine);
+          /* On avance d'une case */
+          tmp = tmp->nxt;
+      }
     }
 }
 
@@ -113,7 +198,7 @@ void creerPiece(int ope)
   mesListeChaineOp[nouvellePiece->ope]=ajouterEnFin(mesListeChaineOp[nouvellePiece->ope], *nouvellePiece);
 }
 
-int main(int argc, char **argv)
+void initaliserListeChaineOp()
 {
   int i;
   mesListeChaineOp=malloc(nbOpe*sizeof(llist));
@@ -123,16 +208,39 @@ int main(int argc, char **argv)
     llist nouvelleList = NULL; // null obligatoire sinon considere comme contenant un element
     mesListeChaineOp[nbOpe]=nouvelleList;
   }
+}
+
+int main(int argc, char **argv)
+{
+  initaliserListeChaineOp();
+  int i;
   for(i=0;i<100;i++)
   {
       creerPiece(i%4);
   }
+  /* Creation convoyeur */
+
   for(i=0;i<nbOpe;i++)
   {
     printf("\nList %d\n",i);
     afficherListe(mesListeChaineOp[i]);
-    effacerListe(mesListeChaineOp[i]); // Libère les ressources
+    //effacerListe(mesListeChaineOp[i]); // Libère les ressources
   }
+  piece *p=recupererElementEnTete(mesListeChaineOp[0]);
+
+  //printf("recuperation de %d\n", p->num);
+  initialiserConvoyeur();
+
+  ajouterPieceConvoyeur(0,*p);
+  for(int j=0;j<20;j++)
+  {
+    sleep(1);
+    tournerConvoyeur();
+    afficherConvoyeur();
+
+  }
+  libererConvoyeur();
+
 
 
   return 0;
