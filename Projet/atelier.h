@@ -1,13 +1,13 @@
-#ifndef H_GL_HELLO
-#define  H_GL_HELLO
+#define NbMachine	3 //num
 
-void Hello(void);
+struct machine {
+  pthread_t thread_id;
+  int numMachine;
+  int sleepTime;
+};
 
-#endif
-
-#ifndef H_GL_CREATIONMACHINES
-#define  H_GL_CREATIONMACHINES
+typedef struct machine machine;
+typedef machine* listeMachine;
+listeMachine * maListeMachine;
 
 void creationMachines(void);
-
-#endif

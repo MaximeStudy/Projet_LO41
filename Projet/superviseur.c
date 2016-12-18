@@ -1,33 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
-
-/* piece */
-struct piece {
-  int num;
-  int ope; //operation d'usinage
-  int estUsine; //pour svaoir si la piece est usine (necessaire ?)
-};
-typedef struct piece piece;
-int num=0; //compteur
-int nbOpe=4; //nb d'operation differente
-
-/* Liste chainée*/
-struct element
-{
-    piece val;
-    struct element *nxt;
-};
-typedef struct element element;
-typedef element* llist;
-llist * mesListeChaineOp;
-
-
-/* Convoyeur*/
-int tailleConv=10;
-piece * conv; //convoyeur
-piece* pieceVideConv; //reference piece vide du convoyeur
+#include "superviseur.h"
 
 void initialiserConvoyeur(){
+    tailleConv=10;
     int i;
     conv=malloc(tailleConv*sizeof(piece));
     pieceVideConv = malloc(sizeof(piece));
@@ -200,6 +176,8 @@ void creerPiece(int ope)
 
 void initaliserListeChaineOp()
 {
+  num=0; //compteur pour les id pieces
+  nbOpe=4; //nb d'operation differente
   int i;
   mesListeChaineOp=malloc(nbOpe*sizeof(llist));
 
@@ -208,40 +186,4 @@ void initaliserListeChaineOp()
     llist nouvelleList = NULL; // null obligatoire sinon considere comme contenant un element
     mesListeChaineOp[nbOpe]=nouvelleList;
   }
-}
-
-int main(int argc, char **argv)
-{
-  initaliserListeChaineOp();
-  int i;
-  for(i=0;i<100;i++)
-  {
-      creerPiece(i%4);
-  }
-  /* Creation convoyeur */
-
-  for(i=0;i<nbOpe;i++)
-  {
-    printf("\nList %d\n",i);
-    afficherListe(mesListeChaineOp[i]);
-    //effacerListe(mesListeChaineOp[i]); // Libère les ressources
-  }
-  piece *p=recupererElementEnTete(mesListeChaineOp[0]);
-
-  //printf("recuperation de %d\n", p->num);
-  initialiserConvoyeur();
-
-  ajouterPieceConvoyeur(0,*p);
-  for(int j=0;j<20;j++)
-  {
-    sleep(1);
-    tournerConvoyeur();
-    afficherConvoyeur();
-
-  }
-  libererConvoyeur();
-
-
-
-  return 0;
 }
