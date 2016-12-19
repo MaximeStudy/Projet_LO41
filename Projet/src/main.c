@@ -13,15 +13,15 @@ int main()
   int i;
   for(i=0;i<100;i++)
   {
-      creerPiece(i%4);
+       creerPiece(i%4);
   }
-  /* Creation convoyeur */
+   /* Creation convoyeur */
 
   for(i=0;i<nbOpe;i++)
   {
     printf("\nList %d\n",i);
     afficherListe(mesListeChaineOp[i]);
-    //effacerListe(mesListeChaineOp[i]); // Libère les ressources
+    effacerListe(mesListeChaineOp[i]); // Libère les ressources
   }
 
   piece *p=recupererElementEnTete(mesListeChaineOp[0]);

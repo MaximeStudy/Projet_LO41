@@ -1,22 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <stdint.h> //cast intptr_t
-#include <unistd.h> // sleep
+
+
 #include "../header/machine.h"
 
 
 void * fonc_machine(void * arg) {
   machine * ma=(machine *)arg;
   while(1) {
-    printf("Thread numero %d : mon tid est %ld\n",ma->numMachine, pthread_self());
+    //printf("Thread numero %d : mon tid est %ld\n",ma->numMachine, pthread_self());
+
     sleep(ma->sleepTime);
   }
   pthread_exit(NULL);
 }
 
 void creationMachines(void) {
-  pthread_attr_t thread_attr;
   int i;
   maListeMachine=malloc(NbMachine*sizeof(machine));
   //permet d'eviter la fuite memoire

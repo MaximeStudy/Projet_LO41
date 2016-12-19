@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../header/superviseur.h"
+#include "../header/machine.h"
 
 void initialiserConvoyeur(){
     tailleConv=10;
@@ -188,22 +189,19 @@ void initaliserListeChaineOp()
   }
 }
 /* Suivi machine du superviseur */
-/*
-void initaliserSuiviMachine()
-{
-  for (i = 0; i < NbMachine; i++) {
-    machine * nouvelleMachine = malloc(sizeof(machine));
-    nouvelleMachine->numMachine=i;
-    nouvelleMachine->sleepTime=i+2;
-    pthread_create(&(nouvelleMachine->thread_id), &thread_attr, fonc_machine, nouvelleMachine);
-    printf("Main: thread numero %d creee: id = %ld\n",nouvelleMachine->numMachine,(nouvelleMachine->thread_id));
-  }
-} */
-/*
-void * threadMachine(void * arg) {
+void * threadSuiviMachine(void * arg) {
   machine * ma=(machine *)arg;
   while(1) {
-
+    
   }
   pthread_exit(NULL);
-} */
+}
+
+void initaliserSuiviMachine()
+{
+  pthread_t * maListeSuiviMachine=malloc(NbMachine*sizeof(machine));
+  int i;
+  for (i = 0; i < NbMachine; i++) {
+  pthread_create(&(maListeSuiviMachine[i]), &thread_attr, threadSuiviMachine, maListeMachine[i]);
+  }
+}
