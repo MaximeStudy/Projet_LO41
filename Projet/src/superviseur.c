@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../header/superviseur.h"
 #include "../header/machine.h"
+#include "../header/superviseur.h"
 
 void initialiserConvoyeur(){
+    num=0; //compteur pour les id pieces
     tailleConv=10;
     int i;
     conv=malloc(tailleConv*sizeof(piece));
@@ -172,27 +173,14 @@ void creerPiece(int ope)
   nouvellePiece->ope = ope;
   nouvellePiece->estUsine =0;
   num++;
-  mesListeChaineOp[nouvellePiece->ope]=ajouterEnFin(mesListeChaineOp[nouvellePiece->ope], *nouvellePiece);
+  maListeMachine[ope]->listeAttente=ajouterEnFin(maListeMachine[ope]->listeAttente, *nouvellePiece);
 }
 
-void initaliserListeChaineOp()
-{
-  num=0; //compteur pour les id pieces
-  nbOpe=4; //nb d'operation differente
-  int i;
-  mesListeChaineOp=malloc(nbOpe*sizeof(llist));
-
-  for(i=0;i<nbOpe;i++)
-  {
-    llist nouvelleList = NULL; // null obligatoire sinon considere comme contenant un element
-    mesListeChaineOp[nbOpe]=nouvelleList;
-  }
-}
 /* Suivi machine du superviseur */
 void * threadSuiviMachine(void * arg) {
   machine * ma=(machine *)arg;
   while(1) {
-    
+
   }
   pthread_exit(NULL);
 }

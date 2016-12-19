@@ -2,14 +2,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "../header/superviseur.h"
 #include "../header/machine.h"
+#include "../header/superviseur.h"
 #include "../header/IHM.h"
 
 int main()
 {
-  creationMachines(); //erreur
-  initaliserListeChaineOp();
+  creationMachines();
   int i;
   for(i=0;i<100;i++)
   {
@@ -17,14 +16,14 @@ int main()
   }
    /* Creation convoyeur */
 
-  for(i=0;i<nbOpe;i++)
+  for(i=0;i<NbMachine;i++)
   {
     printf("\nList %d\n",i);
-    afficherListe(mesListeChaineOp[i]);
-    effacerListe(mesListeChaineOp[i]); // Libère les ressources
+    afficherListe(maListeMachine[i]->listeAttente);
+    effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
   }
 
-  piece *p=recupererElementEnTete(mesListeChaineOp[0]);
+  piece *p=recupererElementEnTete(maListeMachine[0]->listeAttente);
 
   //printf("recuperation de %d\n", p->num);
   initialiserConvoyeur();

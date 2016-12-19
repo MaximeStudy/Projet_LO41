@@ -30,6 +30,8 @@ void creationMachines(void) {
     machine * nouvelleMachine = malloc(sizeof(machine));
     nouvelleMachine->numMachine=i;
     nouvelleMachine->sleepTime=i+2;
+    nouvelleMachine->ope=i;
+    nouvelleMachine->listeAttente=NULL;
     maListeMachine[i]=nouvelleMachine;
     pthread_create(&(maListeMachine[i]->thread_id), &thread_attr, fonc_machine, maListeMachine[i]);
     printf("Main: thread numero %d creee: id = %ld\n",maListeMachine[i]->numMachine,(maListeMachine[i]->thread_id));
