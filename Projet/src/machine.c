@@ -1,7 +1,13 @@
 #include "../header/machine.h"
+#include "../header/robot.h"
 
 void * fonc_machine(void * arg) {
   machine * ma=(machine *)arg;
+  sleep(2);
+  // printf("num machine : %d\n",ma->numMachine);
+  // printf("Ope : %d\n",ma->ope);
+  // printf("tpsUsinage : %d\n\n",ma->tpsUsinage);
+
   while(1) {
     pthread_mutex_lock(&ma->mutexMachine);
     if(ma->listeAttente==NULL) {
@@ -9,11 +15,26 @@ void * fonc_machine(void * arg) {
         printf("La machine %d dort car il y a pas de piece en attente\n",ma->numMachine);
         pthread_cond_wait(&ma->dormir,&ma->mutexMachine);
     }
-    else {
 
-    }
+    pthread_mutex_lock(&mutexAlim);
+    ma->etat=1;
+    printf("nb attente %d\n",nbAttente);
+    nbAttente=nbAttente+1;
+
+    //previent le robot d'alim
+
+    sleep(1);
+    pthread_cond_signal(&condAlim);
+    pthread_mutex_unlock(&mutexAlim);
+
+    //attente de reponse du robot d'alim
+
+    pthread_cond_wait(&ma->attendre,&ma->mutexMachine);
+
     sleep(ma->tpsUsinage);
     pthread_mutex_unlock(&ma->mutexMachine);
+    pthread_cond_signal(&condAlim);
+
   }
   pthread_exit(NULL);
 }
@@ -35,15 +56,16 @@ void creationMachines(void) {
     machine * nouvelleMachine = malloc(sizeof(machine));
     pthread_mutex_init(&nouvelleMachine->mutexMachine,NULL);
     pthread_cond_init(&nouvelleMachine->dormir,NULL);
-    pthread_mutex_lock(&nouvelleMachine->mutexMachine);
+    pthread_cond_init(&nouvelleMachine->attendre,NULL);
+
     nouvelleMachine->numMachine=i;
-    nouvelleMachine->tpsUsinage=i+2;
+    nouvelleMachine->tpsUsinage=i+1;
     nouvelleMachine->ope=i;
     nouvelleMachine->listeAttente=NULL;
+    nouvelleMachine->etat=0;
     maListeMachine[i]=nouvelleMachine;
-    pthread_mutex_unlock(&nouvelleMachine->mutexMachine);
 
     pthread_create(&(maListeMachine[i]->thread_id), &thread_attr, fonc_machine, maListeMachine[i]);
-    printf("Main: thread numero %d creee: id = %ld\n",maListeMachine[i]->numMachine,(maListeMachine[i]->thread_id));
+    printf("Main: thread machine %d creee: id = %ld\n",maListeMachine[i]->numMachine,(maListeMachine[i]->thread_id));
   }
 }

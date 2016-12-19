@@ -12,7 +12,7 @@ int main()
   creationMachines();
   creationRobots();
   int i;
-  for(i=0;i<100;i++)
+  for(i=0;i<24;i++)
   {
        creerPiece(i%4);
   }
@@ -20,23 +20,27 @@ int main()
 
   for(i=0;i<NbMachine;i++)
   {
-    printf("\nList %d\n",i);
-    afficherListe(maListeMachine[i]->listeAttente);
+    //printf("\nList %d\n",i);
+    //afficherListe(maListeMachine[i]->listeAttente);
     //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
   }
 
-  piece *p=recupererElementEnTete(maListeMachine[0]->listeAttente);
+  //piece *p=recupererElementEnTete(maListeMachine[0]->listeAttente);
 
   //printf("recuperation de %d\n", p->num);
   initialiserConvoyeur();
 
-  ajouterPieceConvoyeur(0,*p);
-  afficherConvoyeur();
+  //ajouterPieceConvoyeur(0,*p);
+  //afficherConvoyeur();
 
 
-  for(int k=0;k<20;k++)
+  sleep(60);
+  printf("nb attente : %d",nbAttente);
+  for(i=0;i<NbMachine;i++)
   {
-    sleep(5);
+    printf("\nList %d\n",i);
+    afficherListe(maListeMachine[i]->listeAttente);
+    //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
   }
 
   libererConvoyeur();

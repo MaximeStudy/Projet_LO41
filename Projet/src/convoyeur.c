@@ -7,7 +7,7 @@ void * fonc_convoyeur(void * arg) {
     sleep(vitesseConv);
     pthread_mutex_lock(&mutexConvoyeur);
     tournerConvoyeur();
-    afficherConvoyeur();
+    //afficherConvoyeur();
     pthread_mutex_unlock(&mutexConvoyeur);
   }
   pthread_exit(NULL);
