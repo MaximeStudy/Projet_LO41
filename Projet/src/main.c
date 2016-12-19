@@ -5,6 +5,7 @@
 #include "../header/machine.h"
 #include "../header/robot.h"
 #include "../header/superviseur.h"
+#include "../header/convoyeur.h"
 
 int main()
 {

@@ -1,7 +1,4 @@
-
-
 #include "../header/machine.h"
-
 
 void * fonc_machine(void * arg) {
   machine * ma=(machine *)arg;
