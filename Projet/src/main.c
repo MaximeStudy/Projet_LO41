@@ -3,12 +3,13 @@
 #include <unistd.h>
 
 #include "../header/machine.h"
+#include "../header/robot.h"
 #include "../header/superviseur.h"
-#include "../header/IHM.h"
 
 int main()
 {
   creationMachines();
+  creationRobots();
   int i;
   for(i=0;i<100;i++)
   {

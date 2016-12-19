@@ -168,20 +168,22 @@ llist effacerListe(llist liste)
 
 void creerPiece(int ope)
 {
-  pthread_mutex_lock(&maListeMachine[ope]->mutex);
   piece* nouvellePiece = malloc(sizeof(piece));
   nouvellePiece->num = num;
   nouvellePiece->ope = ope;
   nouvellePiece->estUsine =0;
   num++; //pas besoin de le proteger, il y a juste un thread qui l'incremente
+  pthread_mutex_lock(&maListeMachine[ope]->mutexMachine);
   maListeMachine[ope]->listeAttente=ajouterEnFin(maListeMachine[ope]->listeAttente, *nouvellePiece);
-  pthread_mutex_unlock(&maListeMachine[ope]->mutex);
+  pthread_mutex_unlock(&maListeMachine[ope]->mutexMachine);
+  pthread_cond_signal(&maListeMachine[ope]->dormir); //envoie le signal a la machine pour se preparer
 }
 
 /* Suivi machine du superviseur */
 void * threadSuiviMachine(void * arg) {
   machine * ma=(machine *)arg;
   while(1) {
+    //pthread_cond_signal();
 
   }
   pthread_exit(NULL);

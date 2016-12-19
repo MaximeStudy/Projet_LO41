@@ -1,3 +1,6 @@
+#ifndef _superviseurH_
+#define _superviseurH_
+
 /* Convoyeur*/
 int tailleConv;
 piece * conv; //convoyeur
@@ -14,3 +17,5 @@ piece * recupererElementEnTete(llist liste);
 void afficherListe(llist liste);
 llist effacerListe(llist liste);
 void creerPiece(int ope);
+
+#endif
