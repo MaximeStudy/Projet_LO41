@@ -168,12 +168,14 @@ llist effacerListe(llist liste)
 
 void creerPiece(int ope)
 {
+  pthread_mutex_lock(&maListeMachine[ope]->mutex);
   piece* nouvellePiece = malloc(sizeof(piece));
   nouvellePiece->num = num;
   nouvellePiece->ope = ope;
   nouvellePiece->estUsine =0;
-  num++;
+  num++; //pas besoin de le proteger, il y a juste un thread qui l'incremente
   maListeMachine[ope]->listeAttente=ajouterEnFin(maListeMachine[ope]->listeAttente, *nouvellePiece);
+  pthread_mutex_unlock(&maListeMachine[ope]->mutex);
 }
 
 /* Suivi machine du superviseur */

@@ -20,7 +20,7 @@ int main()
   {
     printf("\nList %d\n",i);
     afficherListe(maListeMachine[i]->listeAttente);
-    effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
+    //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
   }
 
   piece *p=recupererElementEnTete(maListeMachine[0]->listeAttente);

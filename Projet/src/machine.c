@@ -28,11 +28,16 @@ void creationMachines(void) {
   /* creation des threads */
   for (i = 0; i < NbMachine; i++) {
     machine * nouvelleMachine = malloc(sizeof(machine));
+    pthread_mutex_init(&nouvelleMachine->mutex,NULL);
+
+    pthread_mutex_lock(&nouvelleMachine->mutex);
     nouvelleMachine->numMachine=i;
     nouvelleMachine->sleepTime=i+2;
     nouvelleMachine->ope=i;
     nouvelleMachine->listeAttente=NULL;
     maListeMachine[i]=nouvelleMachine;
+    pthread_mutex_unlock(&nouvelleMachine->mutex);
+
     pthread_create(&(maListeMachine[i]->thread_id), &thread_attr, fonc_machine, maListeMachine[i]);
     printf("Main: thread numero %d creee: id = %ld\n",maListeMachine[i]->numMachine,(maListeMachine[i]->thread_id));
   }

@@ -30,7 +30,8 @@ struct machine {
   int ope;
   int sleepTime;
   int defaillant;
-  llist listeAttente;
+  llist listeAttente; //chaque machine a sa liste d'attente
+  pthread_mutex_t mutex;
 };
 
 typedef struct machine machine;
