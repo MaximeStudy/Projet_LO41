@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <stdint.h> //cast intptr_t
 #include <unistd.h> // sleep
-#include "atelier.h"
+#include "../header/machine.h"
 
 
 void * fonc_machine(void * arg) {

@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "superviseur.h"
-#include "atelier.h"
-#include "IHM.h"
+#include "../header/superviseur.h"
+#include "../header/machine.h"
+#include "../header/IHM.h"
 
 int main()
 {
