@@ -36,9 +36,7 @@ int main()
 
   for(int k=0;k<20;k++)
   {
-    sleep(1);
-    tournerConvoyeur();
-    afficherConvoyeur();
+    sleep(5);
   }
 
   libererConvoyeur();

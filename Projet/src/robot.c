@@ -26,6 +26,6 @@ void * fonc_robotRetrait(void * arg) {
 
 void  * creationRobots(void) {
   /* creation des threads */
-  pthread_create(&robotAlim, &thread_attr, fonc_robotAlim, NULL);
-  pthread_create(&robotRetrait, &thread_attr, fonc_robotRetrait, NULL);
+  pthread_create(&thread_robotAlim, &thread_attr, fonc_robotAlim, NULL);
+  pthread_create(&thread_robotRetrait, &thread_attr, fonc_robotRetrait, NULL);
 }
