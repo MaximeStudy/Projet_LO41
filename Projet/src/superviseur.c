@@ -187,3 +187,23 @@ void initaliserListeChaineOp()
     mesListeChaineOp[nbOpe]=nouvelleList;
   }
 }
+/* Suivi machine du superviseur */
+/*
+void initaliserSuiviMachine()
+{
+  for (i = 0; i < NbMachine; i++) {
+    machine * nouvelleMachine = malloc(sizeof(machine));
+    nouvelleMachine->numMachine=i;
+    nouvelleMachine->sleepTime=i+2;
+    pthread_create(&(nouvelleMachine->thread_id), &thread_attr, fonc_machine, nouvelleMachine);
+    printf("Main: thread numero %d creee: id = %ld\n",nouvelleMachine->numMachine,(nouvelleMachine->thread_id));
+  }
+} */
+/*
+void * threadMachine(void * arg) {
+  machine * ma=(machine *)arg;
+  while(1) {
+
+  }
+  pthread_exit(NULL);
+} */

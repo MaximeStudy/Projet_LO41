@@ -4,6 +4,7 @@ struct machine {
   pthread_t thread_id;
   int numMachine;
   int sleepTime;
+  int defaillant;
 };
 
 typedef struct machine machine;
