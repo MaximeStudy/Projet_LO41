@@ -13,8 +13,6 @@ void * fonc_robotAlim(void * arg) {
     }
     for(i=0;i<NbMachine;i++)
     {
-      if(pthread_mutex_trylock(&(maListeMachine[i]->mutexMachine)) == 0)
-      {
         //elle attend une reponse du robot (oblige car sinon on peu perdre des messages)
         if(maListeMachine[i]->etat==1)
         {
@@ -27,13 +25,12 @@ void * fonc_robotAlim(void * arg) {
           afficherListe(maListeMachine[i]->listeAttente);
           break;
         }
-        pthread_mutex_unlock(&(maListeMachine[i]->mutexMachine));
-      }
     }
     pthread_mutex_unlock(&mutexAlim);
   }
   pthread_exit(NULL);
 }
+
 
 void * fonc_robotRetrait(void * arg) {
   while(1)

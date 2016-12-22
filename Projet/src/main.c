@@ -34,7 +34,7 @@ int main()
   //afficherConvoyeur();
 
 
-  sleep(60);
+  sleep(10);
   printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {

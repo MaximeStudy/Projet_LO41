@@ -9,31 +9,31 @@ void * fonc_machine(void * arg) {
   // printf("tpsUsinage : %d\n\n",ma->tpsUsinage);
 
   while(1) {
-    pthread_mutex_lock(&ma->mutexMachine);
+    pthread_mutex_lock(&mutexAlim);
     if(ma->listeAttente==NULL) {
         //la liste est nul -> attendre
-        printf("La machine %d dort car il y a pas de piece en attente\n",ma->numMachine);
-        pthread_cond_wait(&ma->dormir,&ma->mutexMachine);
+        //printf("La machine %d dort car il y a pas de piece en attente\n",mutexAlim);
+        pthread_cond_wait(&ma->dormir,&mutexAlim);
     }
 
-    pthread_mutex_lock(&mutexAlim);
+   
     ma->etat=1;
+    pthread_cond_signal(&condAlim);
     printf("nb attente %d\n",nbAttente);
     nbAttente=nbAttente+1;
 
     //previent le robot d'alim
 
-    sleep(1);
-    pthread_cond_signal(&condAlim);
-    pthread_mutex_unlock(&mutexAlim);
+    //sleep(1);
+    
+
 
     //attente de reponse du robot d'alim
 
-    pthread_cond_wait(&ma->attendre,&ma->mutexMachine);
+    pthread_cond_wait(&ma->attendre,&mutexAlim);
 
-    sleep(ma->tpsUsinage);
-    pthread_mutex_unlock(&ma->mutexMachine);
-    pthread_cond_signal(&condAlim);
+    //sleep(ma->tpsUsinage);
+    pthread_mutex_unlock(&mutexAlim);
 
   }
   pthread_exit(NULL);
@@ -54,7 +54,7 @@ void creationMachines(void) {
   /* creation des threads */
   for (i = 0; i < NbMachine; i++) {
     machine * nouvelleMachine = malloc(sizeof(machine));
-    pthread_mutex_init(&nouvelleMachine->mutexMachine,NULL);
+    //pthread_mutex_init(&nouvelleMachine->mutexMachine,NULL);
     pthread_cond_init(&nouvelleMachine->dormir,NULL);
     pthread_cond_init(&nouvelleMachine->attendre,NULL);
 

@@ -33,7 +33,6 @@ struct machine {
   int defaillant;
   llist listeAttente; //chaque machine a sa liste d'attente
   int etat;
-  pthread_mutex_t mutexMachine;
   pthread_cond_t dormir;
   pthread_cond_t attendre;
 };

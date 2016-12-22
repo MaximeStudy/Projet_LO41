@@ -117,9 +117,7 @@ void creerPiece(int ope)
   nouvellePiece->ope = ope;
   nouvellePiece->estUsine =0;
   num++; //pas besoin de le proteger, il y a juste un thread qui l'incremente
-  pthread_mutex_lock(&maListeMachine[ope]->mutexMachine);
   maListeMachine[ope]->listeAttente=ajouterEnFin(maListeMachine[ope]->listeAttente, *nouvellePiece);
-  pthread_mutex_unlock(&maListeMachine[ope]->mutexMachine);
   pthread_cond_signal(&maListeMachine[ope]->dormir); //envoie le signal a la machine pour se preparer
 }
 
