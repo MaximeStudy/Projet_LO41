@@ -1,14 +1,16 @@
 #include "../header/convoyeur.h"
 #include "../header/include.h"
+#include "../header/robot.h"
 
 void * fonc_convoyeur(void * arg) {
   while(1)
   {
     sleep(vitesseConv);
-    pthread_mutex_lock(&mutexConvoyeur);
+    pthread_mutex_lock(&mutexAlim);
     tournerConvoyeur();
     //afficherConvoyeur();
-    pthread_mutex_unlock(&mutexConvoyeur);
+    pthread_cond_signal(&condPose);
+    pthread_mutex_unlock(&mutexAlim);
   }
   pthread_exit(NULL);
 }
@@ -17,7 +19,7 @@ void initialiserConvoyeur(){
     num=0; //compteur pour les id pieces
     tailleConv=10;
     vitesseConv=2;
-    pthread_mutex_init(&mutexConvoyeur,NULL);
+    //pthread_mutex_init(&mutexConvoyeur,NULL);
     conv=malloc(tailleConv*sizeof(piece));
     pieceVideConv = malloc(sizeof(piece));
     pieceVideConv->num = -1;
@@ -25,7 +27,7 @@ void initialiserConvoyeur(){
     pieceVideConv->estUsine = -1;
     int i;
     for (i =0 ; i<tailleConv; i++){
-        conv[i] = *pieceVideConv;
+        conv[i] = *pieceVideConv;//*pieceVideConv;
     }
     pthread_create(&thread_convoyeur, &thread_attr, fonc_convoyeur, NULL);
 
@@ -38,6 +40,7 @@ void libererConvoyeur(){
 
 void tournerConvoyeur()
 {
+	afficherConvoyeur();
   piece tmp=conv[tailleConv-1];
   int i;
   for(i=tailleConv-1;i>0;i--)

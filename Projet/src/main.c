@@ -31,10 +31,10 @@ int main()
   initialiserConvoyeur();
 
   //ajouterPieceConvoyeur(0,*p);
-  //afficherConvoyeur();
+  afficherConvoyeur();
 
 
-  sleep(10);
+  sleep(60);
   printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {

@@ -42,7 +42,7 @@ llist supprimerElementEnTete(llist liste)
         l'élément en 2ème position */
         element* aRenvoyer = liste->nxt;
         /* On libère le premier élément */
-        free(liste);
+        //free(liste);
         /* On retourne le nouveau début de la liste */
         return aRenvoyer;
     }
@@ -114,6 +114,7 @@ void creerPiece(int ope)
 {
   piece* nouvellePiece = malloc(sizeof(piece));
   nouvellePiece->num = num;
+	printf("%d\n",nouvellePiece->num);
   nouvellePiece->ope = ope;
   nouvellePiece->estUsine =0;
   num++; //pas besoin de le proteger, il y a juste un thread qui l'incremente

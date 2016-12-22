@@ -19,7 +19,7 @@ void * fonc_machine(void * arg) {
    
     ma->etat=1;
     pthread_cond_signal(&condAlim);
-    printf("nb attente %d\n",nbAttente);
+    //printf("nb attente %d\n",nbAttente);
     nbAttente=nbAttente+1;
 
     //previent le robot d'alim

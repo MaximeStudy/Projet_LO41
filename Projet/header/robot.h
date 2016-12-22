@@ -6,6 +6,7 @@
 
 pthread_cond_t condAlim;
 pthread_cond_t condRetrait;
+pthread_cond_t condPose;
 
 pthread_mutex_t mutexAlim;
 pthread_mutex_t mutexRetrait;

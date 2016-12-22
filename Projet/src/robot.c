@@ -1,8 +1,10 @@
 #include "../header/include.h"
 #include "../header/robot.h"
+#include "../header/convoyeur.h"
 
 void * fonc_robotAlim(void * arg) {
   int i;
+//int test;
   while(1)
   {
     pthread_mutex_lock(&mutexAlim);
@@ -16,13 +18,15 @@ void * fonc_robotAlim(void * arg) {
         //elle attend une reponse du robot (oblige car sinon on peu perdre des messages)
         if(maListeMachine[i]->etat==1)
         {
-          printf("Hello je suis le robot d'alim et %d veux que je mette une piece\n",i);
+          //printf("Hello je suis le robot d'alim et %d veux que je mette une piece\n",i);
           pthread_cond_signal(&maListeMachine[i]->attendre);
           piece *p=recupererElementEnTete(maListeMachine[i]->listeAttente);
           maListeMachine[i]->listeAttente=supprimerElementEnTete(maListeMachine[i]->listeAttente);
           nbAttente--;
           maListeMachine[i]->etat=0;
-          afficherListe(maListeMachine[i]->listeAttente);
+          //afficherListe(maListeMachine[i]->listeAttente);
+	pthread_cond_wait(&condPose,&mutexAlim);
+	  ajouterPieceConvoyeur(0,*p);
           break;
         }
     }
@@ -50,6 +54,7 @@ void  * creationRobots(void) {
 
   pthread_cond_init(&condAlim,NULL);
   pthread_cond_init(&condRetrait,NULL);
+  pthread_cond_init(&condPose,NULL);
   pthread_create(&thread_robotAlim, &thread_attr, fonc_robotAlim, NULL);
   pthread_create(&thread_robotRetrait, &thread_attr, fonc_robotRetrait, NULL);
 }
