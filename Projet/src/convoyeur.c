@@ -3,13 +3,20 @@
 #include "../header/robot.h"
 
 void * fonc_convoyeur(void * arg) {
+  int i = 0;
   while(1)
   {
     sleep(vitesseConv);
     pthread_mutex_lock(&mutexAlim);
     tournerConvoyeur();
     //afficherConvoyeur();
-    pthread_cond_signal(&condPose);
+    if (i % 2 == 0){
+	    pthread_cond_signal(&condPose);
+	    i++;
+    }
+    else {
+        i = 0;
+    }
     pthread_mutex_unlock(&mutexAlim);
   }
   pthread_exit(NULL);
@@ -55,6 +62,16 @@ void ajouterPieceConvoyeur(int position, piece p)
   if(position<tailleConv && position>=0)
   {
     conv[position]=p;
+  }
+}
+
+piece retirerPieceConvoyeur(int position)
+{
+  if(position<tailleConv && position>=0)
+  {
+    piece p = conv[position];
+    conv[position]=*pieceVideConv;
+    return p;
   }
 }
 

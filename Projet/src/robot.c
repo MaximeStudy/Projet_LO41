@@ -4,7 +4,6 @@
 
 void * fonc_robotAlim(void * arg) {
   int i;
-//int test;
   while(1)
   {
     pthread_mutex_lock(&mutexAlim);
@@ -25,9 +24,16 @@ void * fonc_robotAlim(void * arg) {
           nbAttente--;
           maListeMachine[i]->etat=0;
           //afficherListe(maListeMachine[i]->listeAttente);
-	pthread_cond_wait(&condPose,&mutexAlim);
-	  ajouterPieceConvoyeur(0,*p);
-          break;
+	
+	while ( 1){
+		pthread_cond_wait(&condPose,&mutexAlim);
+		if (conv[0].num == -1){
+		    ajouterPieceConvoyeur(0,*p);
+		    pthread_cond_signal(&maListeMachine[i]->attendre);
+		    break;
+		}
+	}
+	break;
         }
     }
     pthread_mutex_unlock(&mutexAlim);

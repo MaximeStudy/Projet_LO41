@@ -1,5 +1,6 @@
 #include "../header/machine.h"
 #include "../header/robot.h"
+#include "../header/convoyeur.h"
 
 void * fonc_machine(void * arg) {
   machine * ma=(machine *)arg;
@@ -7,7 +8,7 @@ void * fonc_machine(void * arg) {
   // printf("num machine : %d\n",ma->numMachine);
   // printf("Ope : %d\n",ma->ope);
   // printf("tpsUsinage : %d\n\n",ma->tpsUsinage);
-
+  int indexConv = (int)(2*ma->numMachine+2);
   while(1) {
     pthread_mutex_lock(&mutexAlim);
     if(ma->listeAttente==NULL) {
@@ -31,7 +32,17 @@ void * fonc_machine(void * arg) {
     //attente de reponse du robot d'alim
 
     pthread_cond_wait(&ma->attendre,&mutexAlim);
+    piece p;
+    while (1){
+	pthread_cond_wait(&condPose,&mutexAlim);
+	if (conv[indexConv].num != -1 && conv[indexConv].estUsine == 0 && conv[indexConv].ope == ma->ope){
+	
+	    p = retirerPieceConvoyeur(indexConv);
+	    break;
+	}
+    }
 
+    printf("%d\n",p.num);
     //sleep(ma->tpsUsinage);
     pthread_mutex_unlock(&mutexAlim);
 
