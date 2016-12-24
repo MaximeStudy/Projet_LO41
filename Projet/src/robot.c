@@ -15,7 +15,7 @@ void * fonc_robotAlim(void * arg) {
     for(i=0;i<NbMachine;i++)
     {
         //elle attend une reponse du robot (oblige car sinon on peu perdre des messages)
-        if(maListeMachine[i]->etat==1)
+        if(maListeMachine[i]->etat==1 && maListeMachine[i]->defaillant==0)
         {
           //printf("Hello je suis le robot d'alim et %d veux que je mette une piece\n",i);
           pthread_cond_signal(&maListeMachine[i]->attendre);
@@ -61,6 +61,7 @@ void  * creationRobots(void) {
   pthread_cond_init(&condAlim,NULL);
   pthread_cond_init(&condRetrait,NULL);
   pthread_cond_init(&condPose,NULL);
+  pthread_cond_init(&condPose2,NULL);
   pthread_create(&thread_robotAlim, &thread_attr, fonc_robotAlim, NULL);
   pthread_create(&thread_robotRetrait, &thread_attr, fonc_robotRetrait, NULL);
 }

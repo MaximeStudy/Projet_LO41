@@ -125,9 +125,32 @@ void creerPiece(int ope)
 /* Suivi machine du superviseur */
 void * threadSuiviMachine(void * arg) {
   machine * ma=(machine *)arg;
+  struct timeval tp;
+  struct timespec ts;
+  int rc;
+  int res;
+  pthread_mutex_lock(&(ma->mutMachineDefaillance));
   while(1) {
-    //pthread_cond_signal();
+    pthread_cond_wait(&(ma->dormir),&(ma->mutMachine));
+    rc = gettimeofday(&tp, NULL);
+    ts.tv_sec = tp.tv_sec;
+    ts.tv_nsec = tp.tv_usec*1000;
+    ts.tv_sec += 20;
+    printf("%d BBBBB\n",(ma->numMachine));
+    res = pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachineDefaillance),&ts);
+    if(res != 0){
+      //pthread_mutex_unlock(&(ma->mutMachineDefaillance));
+      ma->defaillant = 1;
+      printf("%d echec!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n",(ma->numMachine));
+      break;
+    }
+    
+    printf("%d OKKKKKKKKKKKKK\n",(ma->numMachine));
+    sleep(2);
+    pthread_cond_signal(&(ma->attendre));
   }
+
+  pthread_mutex_unlock(&(ma->mutMachineDefaillance));
   pthread_exit(NULL);
 }
 
@@ -136,6 +159,6 @@ void initaliserSuiviMachine()
   pthread_t * maListeSuiviMachine=malloc(NbMachine*sizeof(machine));
   int i;
   for (i = 0; i < NbMachine; i++) {
-  pthread_create(&(maListeSuiviMachine[i]), &thread_attr, threadSuiviMachine, maListeMachine[i]);
+  	pthread_create(&(maListeSuiviMachine[i]), &thread_attr, threadSuiviMachine, maListeMachine[i]);
   }
 }

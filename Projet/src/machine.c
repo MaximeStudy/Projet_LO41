@@ -9,6 +9,7 @@ void * fonc_machine(void * arg) {
   // printf("Ope : %d\n",ma->ope);
   // printf("tpsUsinage : %d\n\n",ma->tpsUsinage);
   int indexConv = (int)(2*ma->numMachine+2);
+  piece p;
   while(1) {
     pthread_mutex_lock(&mutexAlim);
     if(ma->listeAttente==NULL) {
@@ -32,18 +33,43 @@ void * fonc_machine(void * arg) {
     //attente de reponse du robot d'alim
 
     pthread_cond_wait(&ma->attendre,&mutexAlim);
-    piece p;
     while (1){
-	pthread_cond_wait(&condPose,&mutexAlim);
-	if (conv[indexConv].num != -1 && conv[indexConv].estUsine == 0 && conv[indexConv].ope == ma->ope){
+		pthread_cond_wait(&condPose,&mutexAlim);
+		if (conv[indexConv].num != -1 && conv[indexConv].estUsine == 0 && conv[indexConv].ope == ma->ope){
 	
-	    p = retirerPieceConvoyeur(indexConv);
-	    break;
-	}
-    }
+			p = retirerPieceConvoyeur(indexConv);
+			break;
+		}
+    }       
 
-    printf("%d\n",p.num);
-    //sleep(ma->tpsUsinage);
+    pthread_cond_signal(&(ma->dormir));
+
+	printf("%d DEBUT\n",(ma->numMachine));
+
+    pthread_mutex_unlock(&mutexAlim);
+
+    sleep(ma->tpsUsinage+10);
+
+	pthread_cond_signal(&(ma->dormir));
+
+    //printf("2.machine n°%d\n",(ma->numMachine));
+
+	pthread_cond_wait(&(ma->attendre),&(ma->mutMachine));
+	
+	printf("%d FIN\n",(ma->numMachine));
+
+    pthread_mutex_lock(&mutexAlim);
+
+	  /*while (1){
+		pthread_cond_wait(&condPose2,&mutexAlim);
+		if (conv[indexConv+1].num == -1){
+		    ajouterPieceConvoyeur(indexConv+1,p);
+		    break;
+		}
+	  }*/
+	
+    ma->etat=0;
+    
     pthread_mutex_unlock(&mutexAlim);
 
   }
@@ -68,12 +94,15 @@ void creationMachines(void) {
     //pthread_mutex_init(&nouvelleMachine->mutexMachine,NULL);
     pthread_cond_init(&nouvelleMachine->dormir,NULL);
     pthread_cond_init(&nouvelleMachine->attendre,NULL);
+    pthread_mutex_init(&nouvelleMachine->mutMachineDefaillance,NULL);
+    pthread_mutex_init(&nouvelleMachine->mutMachine,NULL);
 
     nouvelleMachine->numMachine=i;
     nouvelleMachine->tpsUsinage=i+1;
     nouvelleMachine->ope=i;
     nouvelleMachine->listeAttente=NULL;
     nouvelleMachine->etat=0;
+	nouvelleMachine->defaillant=0;
     maListeMachine[i]=nouvelleMachine;
 
     pthread_create(&(maListeMachine[i]->thread_id), &thread_attr, fonc_machine, maListeMachine[i]);

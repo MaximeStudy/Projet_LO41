@@ -11,6 +11,7 @@ int main()
 {
   creationMachines();
   creationRobots();
+	initaliserSuiviMachine();
   int i;
   for(i=0;i<24;i++)
   {
@@ -34,7 +35,7 @@ int main()
   afficherConvoyeur();
 
 
-  sleep(60);
+  sleep(600);
   printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {

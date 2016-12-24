@@ -1,5 +1,6 @@
 #ifndef _superviseurH_
 #define _superviseurH_
+#include <sys/time.h>
 
 /* Convoyeur*/
 int tailleConv;
@@ -13,5 +14,7 @@ piece * recupererElementEnTete(llist liste);
 void afficherListe(llist liste);
 llist effacerListe(llist liste);
 void creerPiece(int ope);
+void * threadSuiviMachine(void * arg);
+void initaliserSuiviMachine();
 
 #endif

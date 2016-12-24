@@ -35,6 +35,8 @@ struct machine {
   int etat;
   pthread_cond_t dormir;
   pthread_cond_t attendre;
+  pthread_mutex_t mutMachineDefaillance;
+  pthread_mutex_t mutMachine;
 };
 
 typedef struct machine machine;
