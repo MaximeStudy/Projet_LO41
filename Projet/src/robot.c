@@ -48,8 +48,11 @@ void * fonc_robotAlim(void * arg) {
 	while(1){
 		pthread_cond_wait(&RobotAlim,&mutexAlim); //on attend de se faire réveiller par l'un des suivi machine
 		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
-		printf("ROBOT ALIMENTATION se reveille\n");
 		int numMachine = pieceRobotAlim->ope;
+
+		pthread_mutex_lock(&mutexSuiviAlim);
+		pthread_cond_signal(&RobotSuiviAlim); //on averti le suivi du robot qu'on a fini
+		pthread_mutex_unlock(&mutexSuiviAlim);
 
 		//boucle pour poser la piece sur le convoyeur en position 0
 		while (1){
@@ -60,10 +63,16 @@ void * fonc_robotAlim(void * arg) {
 				break;
 			}
 		}
+
+		pthread_mutex_lock(&mutexSuiviAlim);
+		pthread_cond_signal(&RobotSuiviAlim); //on averti le suivi du robot qu'on a fini
+		pthread_mutex_unlock(&mutexSuiviAlim);
+
 		pthread_mutex_unlock(&(maListeMachine[numMachine]->mutMachine));
 		pthread_cond_signal(&(maListeMachine[numMachine]->dormir)); //on previent le suivi de machine qu'on a posé la piece pour qu'il libère le mutex et qu'un autre thread de suivi puisse poser sa piece.
 		pthread_mutex_unlock(&(maListeMachine[numMachine]->mutMachine)); //on libere le mutex
 	}
+	pthread_exit(NULL);
 }
 
 
@@ -73,7 +82,11 @@ void * fonc_robotRetrait(void * arg) {
 	{
 		pthread_cond_wait(&RobotRetrait,&mutexRetrait);//on se fait reveiller par l'un des thread suivi machine
 		pthread_mutex_unlock(&mutexRetrait);
-		printf("ROBOT DE RETRAIT EN ACTION\n");
+
+		pthread_mutex_lock(&mutexSuiviRetrait);
+		pthread_cond_signal(&RobotSuiviRetrait); //on averti le suivi du robot qu'on a fini
+		pthread_mutex_unlock(&mutexSuiviRetrait);
+
 		while (1){ //on lance la boucle pour retirer la piece
 			pthread_cond_wait(&condPose2,&mutexConvoyeur); //on attend que ce soit impair
 			pthread_mutex_unlock(&mutexConvoyeur);
@@ -83,9 +96,13 @@ void * fonc_robotRetrait(void * arg) {
 				break;
 			}
 		}
-		printf("ROBOT DE RETRAIT FIN!!!!!\n");
+
+		pthread_mutex_lock(&mutexSuiviRetrait);
+		pthread_cond_signal(&RobotSuiviRetrait); //on averti le suivi du robot qu'on a fini
+		pthread_mutex_unlock(&mutexSuiviRetrait);
+
 		//on retourne dormir et on unlock mutexRetrait.
-		pthread_mutex_unlock(&(maListeMachine[p.ope]->mutMachine));
+		pthread_mutex_lock(&(maListeMachine[p.ope]->mutMachine));
 		pthread_cond_signal(&(maListeMachine[p.ope]->dormir));
 		pthread_mutex_unlock(&(maListeMachine[p.ope]->mutMachine));
 

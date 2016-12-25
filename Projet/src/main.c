@@ -11,7 +11,8 @@ int main()
 {
   creationMachines();
   creationRobots();
-  initaliserSuiviMachine();
+//initaliserSuiviMachine();  
+Superviseur();
 
   sleep(2);
 
@@ -20,21 +21,11 @@ int main()
   {
        creerPiece(i%4);
   }
+
    /* Creation convoyeur */
 
-  for(i=0;i<NbMachine;i++)
-  {
-    //printf("\nList %d\n",i);
-    //afficherListe(maListeMachine[i]->listeAttente);
-    //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
-  }
-
-  //piece *p=recupererElementEnTete(maListeMachine[0]->listeAttente);
-
-  //printf("recuperation de %d\n", p->num);
   initialiserConvoyeur();
 
-  //ajouterPieceConvoyeur(0,*p);
   afficherConvoyeur();
 
 

@@ -165,7 +165,7 @@ void creationMachines(void) {
     nouvelleMachine->tpsUsinage=i+1;
     nouvelleMachine->ope=i;
     nouvelleMachine->listeAttente=NULL;
-    nouvelleMachine->etat=0;
+    //nouvelleMachine->etat=0;
     nouvelleMachine->defaillant=0;
     maListeMachine[i]=nouvelleMachine;
 

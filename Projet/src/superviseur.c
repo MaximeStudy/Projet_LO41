@@ -172,7 +172,7 @@ void * threadSuiviMachine(void * arg) {
 	struct timespec ts;
 	int rc;
 
-	while(1){
+	while(EnMarche == 1 && ma->defaillant == 0){
 
 		//printf("%d avant if\n",ma->numMachine);
 
@@ -187,7 +187,7 @@ void * threadSuiviMachine(void * arg) {
 		ma->listeAttente=supprimerElementEnTete(ma->listeAttente); //on supprime la piece de la liste d'attente
 		//printf("%d on signal au robot\n",ma->numMachine);
 		pthread_mutex_lock(&mutexAlim);
-		pthread_cond_signal(&RobotAlim); //on envoie un signal au robot pour lui dire que c'est fait
+		pthread_cond_broadcast(&RobotAlim); //on envoie un signal au robot d'alim + son suivi pour lui dire que c'est fait
 		pthread_mutex_unlock(&mutexAlim);
 
 		//printf("%d on s'endort\n",ma->numMachine);
@@ -205,8 +205,25 @@ void * threadSuiviMachine(void * arg) {
 
 		//printf("%d on attend reponse de machine \n",ma->numMachine);
 
-		pthread_cond_wait(&(ma->dormir),&(ma->mutMachine)); //on attend que la machine recoive la piece et lance le traitement
+		//on attend que la machine recoive la piece et lance le traitement
+		
+
+
+		rc = gettimeofday(&tp, NULL);
+		ts.tv_sec = tp.tv_sec;
+		ts.tv_nsec = tp.tv_usec*1000;
+		ts.tv_sec += 50;
+		//on s'endort le temps que la piece soit récupéré par la machine.
+		//mais si le temps dépasse les 20 secondes de traitement (ts), le SYSTEME passe en défaillant
+		if(pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachine),&ts) != 0){
+			pthread_mutex_unlock(&(ma->mutMachine));
+			ma->defaillant = 1;
+			printf("%d ECHEC TIMEDWAIT\n",ma->numMachine);
+			EnMarche = 0;
+			break;
+		}
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
+
 
 		//printf("%d on demarre timedwait\n",ma->numMachine);
 
@@ -215,7 +232,7 @@ void * threadSuiviMachine(void * arg) {
 		ts.tv_nsec = tp.tv_usec*1000;
 		ts.tv_sec += 20;
 		//on s'endort le temps que la piece fasse le traitement sur la piece.
-		//mais si le temps dépasse les 20 secondes de traitement (ts), la piece passe en défaillante
+		//mais si le temps dépasse les 20 secondes de traitement (ts), la MACHINE passe en défaillante
 		if(pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachine),&ts) != 0){
 			pthread_mutex_unlock(&(ma->mutMachine));
 			ma->defaillant = 1;
@@ -231,6 +248,7 @@ void * threadSuiviMachine(void * arg) {
 	
 		//pthread_mutex_lock(&AttentRetrait); //VOIR LIGNE 246 POUR L'AUTRE CAS!! on lock le robot de retrait
 			//en mettant le lock ici, on est sur que le robot de retrait retire la piece de ce robot!
+			//moins rapide
 
 		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->attendre)); //on reveille la machine pour qu'elle finisse son execusion et se remette en attente.
@@ -245,8 +263,10 @@ void * threadSuiviMachine(void * arg) {
 
 		pthread_mutex_lock(&AttentRetrait); //VOIR LIGNE 232 POUR L'AUTRE CAS!! on lock le robot de retrait
 			//en mettant le lock ici, on est pas sur que le robot de retrait retire la piece de ce robot
+			//plus rapide
+
 		pthread_mutex_lock(&mutexRetrait);
-		pthread_cond_signal(&RobotRetrait); //on signal au robot de retrait qu'une piece arrive en le reveillant
+		pthread_cond_broadcast(&RobotRetrait); //on signal au robot de retrait + son suivi qu'une piece arrive en le reveillant
 		pthread_mutex_unlock(&mutexRetrait);
 
 		pthread_cond_wait(&(ma->dormir),&(ma->mutMachine)); //on attend que la piece soit extraite du conv
@@ -255,6 +275,7 @@ void * threadSuiviMachine(void * arg) {
 
 		printf("%d Machine traitement fini\n",ma->numMachine);
 	}
+	pthread_exit(NULL);
 }
 
 
@@ -268,6 +289,10 @@ void initaliserSuiviMachine()
   pthread_cond_init(&RobotAlim,NULL);
   pthread_mutex_init(&mutexRetrait,NULL);
   pthread_cond_init(&RobotRetrait,NULL);
+  pthread_mutex_init(&mutexSuiviAlim,NULL);
+  pthread_cond_init(&RobotSuiviAlim,NULL);
+  pthread_mutex_init(&mutexSuiviRetrait,NULL);
+  pthread_cond_init(&RobotSuiviRetrait,NULL);
   //..............
   pthread_t * maListeSuiviMachine=malloc(NbMachine*sizeof(machine));
   int i;
@@ -277,13 +302,62 @@ void initaliserSuiviMachine()
 }
 
 
-/* superviseur, ajouter l'attente des signaux de la pars des deux robots */
-void * threadSuperviseur(void * arg) {
-	initaliserSuiviMachine();
-	
+void * fonc_SuiviRobotAlim(void * arg) {
+	int rc;
+	struct timeval tp;
+	struct timespec ts;
+	while(EnMarche == 1){
+		pthread_cond_wait(&RobotSuiviAlim,&mutexSuiviAlim); 
+		pthread_mutex_unlock(&mutexSuiviAlim); //on débloque le mutex		
+		rc = gettimeofday(&tp, NULL);
+		ts.tv_sec = tp.tv_sec;
+		ts.tv_nsec = tp.tv_usec*1000;
+		ts.tv_sec += 20;
+		//on s'endort le temps que la piece soit posé sur le convoyeur.
+		//mais si le temps dépasse les 20 secondes de traitement (ts), le SYSTEME passe en défaillant
+		if(pthread_cond_timedwait(&RobotSuiviAlim,&mutexSuiviAlim,&ts) != 0){
+			pthread_mutex_unlock(&mutexSuiviAlim);
+			printf("Robot Alim ECHEC TIMEDWAIT\n");
+			EnMarche = 0;
+			break;
+		}
+		printf("Robot Alim SUCCESS TIMEDWAIT\n");
+		pthread_mutex_unlock(&mutexSuiviAlim);		
+	}
+	pthread_exit(NULL);
 }
 
-void initaliserSuperviseur()
-{
-  pthread_create(&thread_superviseur, &thread_attr, threadSuperviseur, NULL);
+void * fonc_SuiviRobotRetrait(void * arg) {
+	int rc;
+	struct timeval tp;
+	struct timespec ts;
+	while(EnMarche == 1){
+		pthread_cond_wait(&RobotSuiviRetrait,&mutexSuiviRetrait);
+		pthread_mutex_unlock(&mutexSuiviRetrait);		
+		rc = gettimeofday(&tp, NULL);
+		ts.tv_sec = tp.tv_sec;
+		ts.tv_nsec = tp.tv_usec*1000;
+		ts.tv_sec += 30;
+		//on s'endort le temps que la piece soit posé sur le convoyeur.
+		//mais si le temps dépasse les 20 secondes de traitement (ts), le SYSTEME passe en défaillant
+		if(pthread_cond_timedwait(&RobotSuiviRetrait,&mutexSuiviRetrait,&ts) != 0){
+			pthread_mutex_unlock(&mutexSuiviRetrait);
+			printf("Robot Retrait ECHEC TIMEDWAIT\n");
+			EnMarche = 0;
+			break;
+		}
+		printf("Robot Retrait SUCCESS TIMEDWAIT\n");
+		pthread_mutex_unlock(&mutexSuiviRetrait);
+	}
+	pthread_exit(NULL);
 }
+
+void Superviseur()
+{	
+	EnMarche = 1; //le systeme fonctionne
+	initaliserSuiviMachine();
+	pthread_create(&thread_SuiviRobotAlim, &thread_attr, fonc_SuiviRobotAlim, NULL);
+	pthread_create(&thread_SuiviRobotRetrait, &thread_attr, fonc_SuiviRobotRetrait, NULL);	
+}
+
+

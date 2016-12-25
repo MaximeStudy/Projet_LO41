@@ -32,7 +32,7 @@ struct machine {
   int tpsUsinage;
   int defaillant;
   llist listeAttente; //chaque machine a sa liste d'attente
-  int etat;
+  //int etat;
   pthread_cond_t dormir;
   pthread_cond_t attendre;
   //pthread_mutex_t mutMachineDefaillance;
