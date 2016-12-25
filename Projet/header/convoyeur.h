@@ -4,7 +4,7 @@
 #include "../header/machine.h"
 #include "../header/superviseur.h"
 pthread_t thread_convoyeur;
-//pthread_mutex_t mutexConvoyeur;
+pthread_mutex_t mutexConvoyeur;
 int vitesseConv;
 void initialiserConvoyeur();
 void libererConvoyeur();

@@ -11,7 +11,10 @@ int main()
 {
   creationMachines();
   creationRobots();
-	initaliserSuiviMachine();
+  initaliserSuiviMachine();
+
+  sleep(2);
+
   int i;
   for(i=0;i<24;i++)
   {

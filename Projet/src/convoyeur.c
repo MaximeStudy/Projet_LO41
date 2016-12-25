@@ -7,27 +7,29 @@ void * fonc_convoyeur(void * arg) {
   while(1)
   {
     sleep(vitesseConv);
-    pthread_mutex_lock(&mutexAlim);
     tournerConvoyeur();
     //afficherConvoyeur();
     if (i % 2 == 0){
-	    pthread_cond_signal(&condPose);
-	    i++;
+	pthread_mutex_lock(&mutexConvoyeur);
+	pthread_cond_broadcast(&condPose);//fonctionne comme un pthread_cond_signal mais prévient TOUS les threads en wait
+	pthread_mutex_unlock(&mutexConvoyeur);
+	i++;
     }
     else {
-	pthread_cond_signal(&condPose2);
+	pthread_mutex_lock(&mutexConvoyeur);
+	pthread_cond_broadcast(&condPose2);
+	pthread_mutex_unlock(&mutexConvoyeur);
         i = 0;
     }
-    pthread_mutex_unlock(&mutexAlim);
   }
   pthread_exit(NULL);
 }
 
 void initialiserConvoyeur(){
     num=0; //compteur pour les id pieces
-    tailleConv=10;
+    tailleConv=12; //taille du convoyeur doit toujours être pair!
     vitesseConv=2;
-    //pthread_mutex_init(&mutexConvoyeur,NULL);
+    pthread_mutex_init(&mutexConvoyeur,NULL);
     conv=malloc(tailleConv*sizeof(piece));
     pieceVideConv = malloc(sizeof(piece));
     pieceVideConv->num = -1;
@@ -42,20 +44,20 @@ void initialiserConvoyeur(){
 }
 
 void libererConvoyeur(){
-    free(pieceVideConv);
-    free(conv); //libère les ressources alloué
+	free(pieceVideConv);
+	free(conv); //libère les ressources alloué
 }
 
 void tournerConvoyeur()
 {
 	afficherConvoyeur();
-  piece tmp=conv[tailleConv-1];
-  int i;
-  for(i=tailleConv-1;i>0;i--)
-  {
-    conv[i]=conv[i-1];
-  }
-  conv[0]=tmp;
+	piece tmp=conv[tailleConv-1];
+	int i;
+	for(i=tailleConv-1;i>0;i--)
+	{
+		conv[i]=conv[i-1];
+	}
+	conv[0]=tmp;
 }
 
 void ajouterPieceConvoyeur(int position, piece p)
