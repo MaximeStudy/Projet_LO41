@@ -91,12 +91,12 @@ void * fonc_machine(void * arg) {
 		//printf("Machine se reveille %d\n", ma->numMachine);
 		while (1){
 			pthread_cond_wait(&condPose,&mutexConvoyeur); //on attend d'être sur un tournant pair pour regarder
-			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
 			if (conv[indexConv].num != -1 && conv[indexConv].ope == ma->ope){
 				//printf("Machine PREND LA PIECE %d\n", ma->numMachine);
 				p = retirerPieceConvoyeur(indexConv); //on retire la piece
 				break;
 			}
+			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
     		} 		
 		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->dormir)); //on previent le thread suivi de la machine que la machine va traiter la piece.
@@ -122,13 +122,12 @@ void * fonc_machine(void * arg) {
 
 		while (1){
 			pthread_cond_wait(&condPose2,&mutexConvoyeur);//on attend d'être sur un tournant impair pour regarder
-			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
-
 			if (conv[indexConv+1].num == -1){
 				//printf("Machine POSE SUR CONVOYEUR%d\n", ma->numMachine);
 				ajouterPieceConvoyeur(indexConv+1,p); //on pose la piece
 				break;
 			}
+			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
 		}
     		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->dormir)); //on signal qu'on a posé la piece sur le convoyeur à SuiviMachine

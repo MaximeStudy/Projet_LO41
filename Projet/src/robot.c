@@ -57,11 +57,11 @@ void * fonc_robotAlim(void * arg) {
 		//boucle pour poser la piece sur le convoyeur en position 0
 		while (1){
 			pthread_cond_wait(&condPose,&mutexConvoyeur); //on attend d'être sur un tournant pair pour regarder
-			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
 			if (conv[0].num == -1){
 				ajouterPieceConvoyeur(0,*pieceRobotAlim);
 				break;
 			}
+			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
 		}
 
 		pthread_mutex_lock(&mutexSuiviAlim);
@@ -89,12 +89,12 @@ void * fonc_robotRetrait(void * arg) {
 
 		while (1){ //on lance la boucle pour retirer la piece
 			pthread_cond_wait(&condPose2,&mutexConvoyeur); //on attend que ce soit impair
-			pthread_mutex_unlock(&mutexConvoyeur);
 			if (conv[11].num != -1){ //impair donc piece usiné
 				p = retirerPieceConvoyeur(11); //on retire la piece
 				printf("ROBOT DE RETRAIT Piece retiré ------------------------%d\n",p.num);
 				break;
 			}
+			pthread_mutex_unlock(&mutexConvoyeur);
 		}
 
 		pthread_mutex_lock(&mutexSuiviRetrait);
