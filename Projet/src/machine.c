@@ -94,6 +94,7 @@ void * fonc_machine(void * arg) {
 			if (conv[indexConv].num != -1 && conv[indexConv].ope == ma->ope){
 				//printf("Machine PREND LA PIECE %d\n", ma->numMachine);
 				p = retirerPieceConvoyeur(indexConv); //on retire la piece
+				pthread_mutex_unlock(&mutexConvoyeur);
 				break;
 			}
 			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
@@ -125,6 +126,7 @@ void * fonc_machine(void * arg) {
 			if (conv[indexConv+1].num == -1){
 				//printf("Machine POSE SUR CONVOYEUR%d\n", ma->numMachine);
 				ajouterPieceConvoyeur(indexConv+1,p); //on pose la piece
+				pthread_mutex_unlock(&mutexConvoyeur);
 				break;
 			}
 			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
