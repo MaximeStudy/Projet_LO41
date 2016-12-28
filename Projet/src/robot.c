@@ -55,13 +55,17 @@ void * fonc_robotAlim(void * arg) {
 		pthread_mutex_unlock(&mutexSuiviAlim);
 
 		//boucle pour poser la piece sur le convoyeur en position 0
-		while (1){
+		if(modeDeg1==0)
+			sleep(20);
+		while (EnMarche==1){
 			pthread_cond_wait(&condPose,&mutexConvoyeur); //on attend d'être sur un tournant pair pour regarder
+
 			if (conv[0].num == -1){
 				ajouterPieceConvoyeur(0,*pieceRobotAlim);
 				pthread_mutex_unlock(&mutexConvoyeur);
 				break;
 			}
+
 			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
 		}
 

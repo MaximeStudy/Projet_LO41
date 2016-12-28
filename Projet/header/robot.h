@@ -3,6 +3,7 @@
 
 #include "../header/machine.h"
 #include "../header/superviseur.h"
+#include "../header/IHM.h"
 
 pthread_cond_t condAlim;
 pthread_cond_t condRetrait;

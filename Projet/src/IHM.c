@@ -80,12 +80,11 @@ void faireQuitter()
     exit(0);
 }
 
-void faireParDefaut()
+void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
 {
   int nombreMachine=4;
   int vitesseC=1;
-  printf("Menu defaut : \n\n");
-
+  printf("Mode par défaut : \n\n");
 
   creationMachines(nombreMachine); //temps usinage de machines est i+1
   creationRobots();
@@ -93,7 +92,7 @@ void faireParDefaut()
   Superviseur();
 
   sleep(1); //attendre que les threads soient bien en place
-
+  affichage=1;
   int i;
   for(i=0;i<8;i++)
   {
@@ -111,6 +110,8 @@ void faireParDefaut()
     afficherListe(maListeMachine[i]->listeAttente);
     //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
  }
+ affichage=0;
+
   //libererConvoyeur();
   exit(0);
 }
@@ -150,8 +151,7 @@ void fairePerso(void)
    /* Creation convoyeur */
 
   //afficherConvoyeur();
-
-  sleep(34);
+  sleep(34); //TODO comment on sait quand afficher la fin ?
   affichage=0;
 
   printf("nb attente : %d",nbAttente);
@@ -173,6 +173,8 @@ void faireDefaillance(void) {
       switch(choix)
           {
               case 1 :
+                  modeDeg1 = 0;
+                  faireParDefaut();
                   break;
               case 2 :
                   break;
@@ -189,6 +191,7 @@ void faireDefaillance(void) {
 
 void menu(void) {
     int choix;     // main variables
+    modeDeg1 = 1; //pour le mode degrade 1
 
     choix = selectionChoix();   // get user's first selection
 

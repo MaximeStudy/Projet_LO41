@@ -165,7 +165,22 @@ void creerPiece(int ope)
   pthread_mutex_unlock(&(ma->mutMachineDefaillance));
   pthread_exit(NULL);
 }*/
+void killThreads(void)
+{
+  //permet de meetre le système en defaillance TODO faire egalement les free
+  pthread_cancel(thread_robotAlim);
+  pthread_cancel(thread_robotRetrait);
+  pthread_cancel(thread_convoyeur);
 
+  pthread_cancel(thread_SuiviRobotAlim);
+  pthread_cancel(thread_SuiviRobotRetrait);
+  int i;
+  for (i = 0; i < NbMachine; i++) {
+    pthread_cancel(maListeMachine[i]->thread_id);
+    pthread_cancel(maListeSuiviMachine[i]);
+  }
+
+}
 //version 2
 void * threadSuiviMachine(void * arg) {
 	machine * ma=(machine *)arg;
@@ -295,7 +310,7 @@ void initaliserSuiviMachine()
   pthread_mutex_init(&mutexSuiviRetrait,NULL);
   pthread_cond_init(&RobotSuiviRetrait,NULL);
   //..............
-  pthread_t * maListeSuiviMachine=malloc(NbMachine*sizeof(machine));
+  maListeSuiviMachine=malloc(NbMachine*sizeof(machine));
   int i;
   for (i = 0; i < NbMachine; i++) {
   	pthread_create(&(maListeSuiviMachine[i]), &thread_attr, threadSuiviMachine, maListeMachine[i]);
@@ -315,10 +330,11 @@ void * fonc_SuiviRobotAlim(void * arg) {
 		ts.tv_nsec = tp.tv_usec*1000;
 		ts.tv_sec += 20;
 		//on s'endort le temps que la piece soit posé sur le convoyeur.
-		//mais si le temps dépasse les 20 secondes de traitement (ts), le SYSTEME passe en défaillant
+		//mais si le temps dépasse les 5 secondes de traitement (ts), le SYSTEME passe en défaillant
 		if(pthread_cond_timedwait(&RobotSuiviAlim,&mutexSuiviAlim,&ts) != 0){
 			pthread_mutex_unlock(&mutexSuiviAlim);
 			printf("Robot Alim ECHEC TIMEDWAIT\n");
+      killThreads(); //tout le systeme est KO
 			EnMarche = 0;
 			break;
 		}
@@ -356,6 +372,7 @@ void * fonc_SuiviRobotRetrait(void * arg) {
 void Superviseur()
 {
 	EnMarche = 1; //le systeme fonctionne
+
 	initaliserSuiviMachine();
 	pthread_create(&thread_SuiviRobotAlim, &thread_attr, fonc_SuiviRobotAlim, NULL);
 	pthread_create(&thread_SuiviRobotRetrait, &thread_attr, fonc_SuiviRobotRetrait, NULL);

@@ -1,6 +1,12 @@
 #ifndef _superviseurH_
 #define _superviseurH_
 #include <sys/time.h>
+#include <signal.h>
+#include <signal.h>
+#include "../header/machine.h"
+#include "../header/robot.h"
+#include "../header/convoyeur.h"
+#include "../header/IHM.h"
 
 /* Convoyeur*/
 int tailleConv;
@@ -19,6 +25,7 @@ pthread_mutex_t mutexSuiviRetrait;
 pthread_cond_t RobotSuiviAlim;
 pthread_cond_t RobotSuiviRetrait;
 
+pthread_t * maListeSuiviMachine;
 pthread_t thread_SuiviRobotAlim;
 pthread_t thread_SuiviRobotRetrait;
 
@@ -36,4 +43,7 @@ void * fonc_SuiviRobotRetrait(void * arg);
 
 piece *pieceRobotAlim;
 int EnMarche;
+
+//affichage mode degrade
+int modeDeg1;
 #endif
