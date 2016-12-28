@@ -4,7 +4,7 @@ atelier : ./object/machine.o ./object/main.o ./object/superviseur.o ./object/rob
 	gcc -o atelier ./object/machine.o ./object/main.o ./object/superviseur.o ./object/robot.o ./object/convoyeur.o -pthread
 
 ./object/machine.o : ./src/machine.c
-	gcc -o ./object/machine.o -c ./src/machine.c -pthread 
+	gcc -o ./object/machine.o -c ./src/machine.c -pthread
 
 ./object/convoyeur.o : ./src/robot.c
 	gcc -o ./object/convoyeur.o -c ./src/convoyeur.c -pthread
@@ -23,3 +23,9 @@ clean:
 
 mrproper: clean
 	rm -rf atelier
+
+run : atelier
+		@echo "\n Run the executable"
+		make mrproper
+		make
+		./atelier
