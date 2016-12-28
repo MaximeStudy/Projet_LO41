@@ -126,7 +126,7 @@ void * fonc_machine(void * arg) {
 		//printf("Machine REPONSE RECU DEMARRE PLACEMENT %d\n", ma->numMachine);
 
 		while (1){
-			pthread_cond_wait(&condPose2,&mutexConvoyeur);//on attend d'être sur un tournant impair pour regarder
+			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur);//on attend d'être sur un tournant impair pour regarder
 			if (conv[indexConv+1].num == -1){
 				//printf("Machine POSE SUR CONVOYEUR%d\n", ma->numMachine);
 				ajouterPieceConvoyeur(indexConv+1,p); //on pose la piece

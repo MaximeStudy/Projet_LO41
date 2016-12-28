@@ -93,7 +93,7 @@ void * fonc_robotRetrait(void * arg) {
 		pthread_mutex_unlock(&mutexSuiviRetrait);
 
 		while (1){ //on lance la boucle pour retirer la piece
-			pthread_cond_wait(&condPose2,&mutexConvoyeur); //on attend que ce soit impair
+			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur ); //on attend que ce soit impair
 			if (conv[(tailleConv-1)].num != -1){ //impair donc piece usiné
 				p = retirerPieceConvoyeur(tailleConv-1); //on retire la piece
 				printf("ROBOT DE RETRAIT Piece retiré ------------------------%d\n",p.num);

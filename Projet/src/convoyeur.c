@@ -19,7 +19,7 @@ void * fonc_convoyeur(void * arg) {
       i++;
     }
     else {
-      pthread_cond_broadcast(&condPose2);
+      //pthread_cond_broadcast(&condPose2);
       i = 0;
     }
     pthread_mutex_unlock(&mutexConvoyeur);
