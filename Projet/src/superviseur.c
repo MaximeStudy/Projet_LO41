@@ -155,7 +155,7 @@ void creerPiece(int ope)
       printf("%d echec!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n",(ma->numMachine));
       break;
     }
-    
+
     printf("%d OKKKKKKKKKKKKK\n",(ma->numMachine));
     sleep(2);
     pthread_cond_signal(&(ma->attendre));
@@ -206,7 +206,7 @@ void * threadSuiviMachine(void * arg) {
 		//printf("%d on attend reponse de machine \n",ma->numMachine);
 
 		//on attend que la machine recoive la piece et lance le traitement
-		
+
 
 
 		rc = gettimeofday(&tp, NULL);
@@ -245,8 +245,8 @@ void * threadSuiviMachine(void * arg) {
 
 		//printf("%d SUCESS TIMEDWAIT et envoie un signal a machine\n",ma->numMachine);
 
-	
-		//pthread_mutex_lock(&AttentRetrait); //VOIR LIGNE 246 POUR L'AUTRE CAS!! on lock le robot de retrait
+
+		pthread_mutex_lock(&AttentRetrait); //VOIR LIGNE 246 POUR L'AUTRE CAS!! on lock le robot de retrait
 			//en mettant le lock ici, on est sur que le robot de retrait retire la piece de ce robot!
 			//moins rapide
 
@@ -261,7 +261,7 @@ void * threadSuiviMachine(void * arg) {
 
 		//printf("%d On reveille ROBOTRETRAIT\n",ma->numMachine);
 
-		pthread_mutex_lock(&AttentRetrait); //VOIR LIGNE 232 POUR L'AUTRE CAS!! on lock le robot de retrait
+		//pthread_mutex_lock(&AttentRetrait); //VOIR LIGNE 232 POUR L'AUTRE CAS!! on lock le robot de retrait
 			//en mettant le lock ici, on est pas sur que le robot de retrait retire la piece de ce robot
 			//plus rapide
 
@@ -307,8 +307,8 @@ void * fonc_SuiviRobotAlim(void * arg) {
 	struct timeval tp;
 	struct timespec ts;
 	while(EnMarche == 1){
-		pthread_cond_wait(&RobotSuiviAlim,&mutexSuiviAlim); 
-		pthread_mutex_unlock(&mutexSuiviAlim); //on débloque le mutex		
+		pthread_cond_wait(&RobotSuiviAlim,&mutexSuiviAlim);
+		pthread_mutex_unlock(&mutexSuiviAlim); //on débloque le mutex
 		rc = gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
@@ -322,7 +322,7 @@ void * fonc_SuiviRobotAlim(void * arg) {
 			break;
 		}
 		printf("Robot Alim SUCCESS TIMEDWAIT\n");
-		pthread_mutex_unlock(&mutexSuiviAlim);		
+		pthread_mutex_unlock(&mutexSuiviAlim);
 	}
 	pthread_exit(NULL);
 }
@@ -333,7 +333,7 @@ void * fonc_SuiviRobotRetrait(void * arg) {
 	struct timespec ts;
 	while(EnMarche == 1){
 		pthread_cond_wait(&RobotSuiviRetrait,&mutexSuiviRetrait);
-		pthread_mutex_unlock(&mutexSuiviRetrait);		
+		pthread_mutex_unlock(&mutexSuiviRetrait);
 		rc = gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
@@ -353,11 +353,9 @@ void * fonc_SuiviRobotRetrait(void * arg) {
 }
 
 void Superviseur()
-{	
+{
 	EnMarche = 1; //le systeme fonctionne
 	initaliserSuiviMachine();
 	pthread_create(&thread_SuiviRobotAlim, &thread_attr, fonc_SuiviRobotAlim, NULL);
-	pthread_create(&thread_SuiviRobotRetrait, &thread_attr, fonc_SuiviRobotRetrait, NULL);	
+	pthread_create(&thread_SuiviRobotRetrait, &thread_attr, fonc_SuiviRobotRetrait, NULL);
 }
-
-

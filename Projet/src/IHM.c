@@ -1,6 +1,6 @@
 #include "../header/IHM.h"
 #define PAR_DEFAUT 1
-#define PERSONALISE 2
+#define PERSONNALISE 2
 #define DEFAILLANCE 3
 #define QUIT 0
 
@@ -28,40 +28,75 @@ void faireQuitter()
     printf("Au revoir !\n");
     exit(0);
 }
+
 void faireParDefaut()
 {
-  printf("Menu defaut : \n");
-  int nombreMachine=4;
-  creationMachines(4);
+  int nombreMachine;
+  int vitesseC;
+  printf("Menu defaut : \n\n");
+  printf("Nombre de machine total ?\n");
+  scanf(" %d", &nombreMachine);
+  printf("Vitesse du convoyeur ?\n");
+  scanf(" %d", &vitesseC);
+
+  creationMachines(nombreMachine); //temps usinage de machines est i+1
   creationRobots();
-  //initaliserSuiviMachine();
+  initialiserConvoyeur(vitesseC);
   Superviseur();
 
-  sleep(2);
+  sleep(1); //attendre que les threads soient bien en place
 
   int i;
-  for(i=0;i<24;i++)
+  for(i=0;i<8;i++)
   {
        creerPiece(i%4);
   }
 
    /* Creation convoyeur */
 
-  initialiserConvoyeur();
-
-  afficherConvoyeur();
-
-
-  sleep(600);
+  //afficherConvoyeur();
+  sleep(34);
   printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {
     printf("\nList %d\n",i);
     afficherListe(maListeMachine[i]->listeAttente);
-    effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
+    //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
  }
+  //libererConvoyeur();
+  exit(0);
+}
 
-  libererConvoyeur();
+void fairePerso()
+{
+  printf("Menu personnalisé : \n");
+  int nombreMachine=4;
+  creationMachines(4); //temps usinage de machines est i+1
+  creationRobots();
+  initialiserConvoyeur(1);
+  Superviseur();
+
+  sleep(1); //attendre que les threads soient bien en place
+
+  int i;
+  for(i=0;i<8;i++)
+  {
+       creerPiece(i%4);
+  }
+
+   /* Creation convoyeur */
+
+  //afficherConvoyeur();
+  sleep(34);
+  printf("nb attente : %d",nbAttente);
+  for(i=0;i<NbMachine;i++)
+  {
+    printf("\nList %d\n",i);
+    afficherListe(maListeMachine[i]->listeAttente);
+    //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
+ }
+  //libererConvoyeur();
+  exit(0);
 }
 
 void menu(void) {
@@ -76,8 +111,8 @@ void menu(void) {
                 case PAR_DEFAUT :
                     faireParDefaut();
                     break;
-                case PERSONALISE :
-                    printf("Menu personalise : \n");
+                case PERSONNALISE :
+                    printf("Menu personnalisé : \n");
                     break;
                 case DEFAILLANCE:
                     printf("Menu défailance : \n");

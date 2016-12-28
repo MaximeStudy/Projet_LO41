@@ -6,7 +6,7 @@
 pthread_t thread_convoyeur;
 pthread_mutex_t mutexConvoyeur;
 int vitesseConv;
-void initialiserConvoyeur();
+void initialiserConvoyeur(int vit);
 void libererConvoyeur();
 void tournerConvoyeur();
 void ajouterPieceConvoyeur(int position, piece p);

@@ -26,7 +26,7 @@
           nbAttente--;
           maListeMachine[i]->etat=0;
           //afficherListe(maListeMachine[i]->listeAttente);
-	
+
 	while ( 1){
 		pthread_cond_wait(&condPose,&mutexAlim);
 		if (conv[0].num == -1){
@@ -44,7 +44,7 @@
 }*/
 
 void * fonc_robotAlim(void * arg) {
-	
+
 	while(1){
 		pthread_cond_wait(&RobotAlim,&mutexAlim); //on attend de se faire réveiller par l'un des suivi machine
 		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
@@ -90,8 +90,8 @@ void * fonc_robotRetrait(void * arg) {
 
 		while (1){ //on lance la boucle pour retirer la piece
 			pthread_cond_wait(&condPose2,&mutexConvoyeur); //on attend que ce soit impair
-			if (conv[11].num != -1){ //impair donc piece usiné
-				p = retirerPieceConvoyeur(11); //on retire la piece
+			if (conv[(tailleConv-1)].num != -1){ //impair donc piece usiné
+				p = retirerPieceConvoyeur(tailleConv-1); //on retire la piece
 				printf("ROBOT DE RETRAIT Piece retiré ------------------------%d\n",p.num);
 				pthread_mutex_unlock(&mutexConvoyeur);
 				break;
