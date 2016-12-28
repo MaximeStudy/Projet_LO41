@@ -6,6 +6,7 @@
 pthread_t thread_convoyeur;
 pthread_mutex_t mutexConvoyeur;
 int vitesseConv;
+int affichage;
 void initialiserConvoyeur(int vit);
 void libererConvoyeur();
 void tournerConvoyeur();

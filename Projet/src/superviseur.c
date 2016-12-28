@@ -123,13 +123,14 @@ void creerPiece(int ope)
   if (recupererElementEnTete(maListeMachine[ope]->listeAttente) == NULL){
   	test = 1;
   }
-
   maListeMachine[ope]->listeAttente=ajouterEnFin(maListeMachine[ope]->listeAttente, *nouvellePiece);
 
   if (test ==1){ //si la liste d'attente pour la machine était vide
   	pthread_cond_signal(&(maListeMachine[ope]->dormir)); //on previent qu'il y a une pieces
   	pthread_mutex_unlock(&(maListeMachine[ope]->mutMachine)); //on libere le mutex
   }
+  printf("Hi\n" );
+
 }
 
 /* Suivi machine du superviseur */

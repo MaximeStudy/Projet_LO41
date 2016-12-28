@@ -31,13 +31,10 @@ void faireQuitter()
 
 void faireParDefaut()
 {
-  int nombreMachine;
-  int vitesseC;
+  int nombreMachine=4;
+  int vitesseC=1;
   printf("Menu defaut : \n\n");
-  printf("Nombre de machine total ?\n");
-  scanf(" %d", &nombreMachine);
-  printf("Vitesse du convoyeur ?\n");
-  scanf(" %d", &vitesseC);
+
 
   creationMachines(nombreMachine); //temps usinage de machines est i+1
   creationRobots();
@@ -69,25 +66,44 @@ void faireParDefaut()
 
 void fairePerso()
 {
+  int nombreMachine;
+  int vitesseC;
   printf("Menu personnalisé : \n");
-  int nombreMachine=4;
-  creationMachines(4); //temps usinage de machines est i+1
+  printf("Nombre de machine total ?\n");
+  scanf(" %d", &nombreMachine);
+  printf("Vitesse du convoyeur ?\n");
+  scanf("%d", &vitesseC);
+  int i;
+  int j;
+  int tab[nombreMachine];
+  for(i=0;i<nombreMachine;i++)
+  {
+    printf("Nombre de pieces machine %d ?\n",i);
+    scanf("%d",tab+i); //TODO verif int dans le scan f
+  }
+  creationMachines(nombreMachine); //temps usinage de machines est i+1
   creationRobots();
-  initialiserConvoyeur(1);
+  initialiserConvoyeur(vitesseC);
   Superviseur();
 
-  sleep(1); //attendre que les threads soient bien en place
+  sleep(2); //attendre que les threads soient bien en place
 
-  int i;
-  for(i=0;i<8;i++)
+  for(i=0;i<nombreMachine;i++)
   {
-       creerPiece(i%4);
+    for(j=0;j<tab[i];j++)
+    {
+      creerPiece(j);
+    }
   }
+  affichage=1;
+
 
    /* Creation convoyeur */
 
   //afficherConvoyeur();
   sleep(34);
+  affichage=0;
+
   printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {
@@ -112,7 +128,7 @@ void menu(void) {
                     faireParDefaut();
                     break;
                 case PERSONNALISE :
-                    printf("Menu personnalisé : \n");
+                    fairePerso();
                     break;
                 case DEFAILLANCE:
                     printf("Menu défailance : \n");
