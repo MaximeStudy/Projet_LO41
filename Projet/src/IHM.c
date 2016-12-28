@@ -31,7 +31,8 @@ void faireQuitter()
 void faireParDefaut()
 {
   printf("Menu defaut : \n");
-  creationMachines();
+  int nombreMachine=4;
+  creationMachines(4);
   creationRobots();
   //initaliserSuiviMachine();
   Superviseur();

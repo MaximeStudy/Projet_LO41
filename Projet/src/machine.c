@@ -105,7 +105,7 @@ void * fonc_machine(void * arg) {
 
 		//printf("Machine DEMARRE USINAGE %d\n", ma->numMachine);
 
-		sleep(ma->tpsUsinage+10); //on execute le traitement sur la machine
+		sleep(ma->tpsUsinage); //on execute le traitement sur la machine
 
 		//printf("Machine FINI USINAGE %d\n", ma->numMachine);
 
@@ -141,9 +141,9 @@ void * fonc_machine(void * arg) {
 
 }
 
-void creationMachines(void) {
+void creationMachines(int nb) {
   int i;
-	NbMachine=4;
+	NbMachine=nb;
   maListeMachine=malloc(NbMachine*sizeof(machine));
   //permet d'eviter la fuite memoire
   if(pthread_attr_init(&thread_attr)!=0) {

@@ -6,29 +6,30 @@ void * fonc_convoyeur(void * arg) {
   int i = 0;
   while(1)
   {
-    sleep(vitesseConv);
+    pthread_mutex_lock(&mutexConvoyeur);
+    //sleep(vitesseConv);
+    usleep(vitesseConv*100000);
     tournerConvoyeur();
     //afficherConvoyeur();
     if (i % 2 == 0){
-	pthread_mutex_lock(&mutexConvoyeur);
-	pthread_cond_broadcast(&condPose);//fonctionne comme un pthread_cond_signal mais prévient TOUS les threads en wait
-	pthread_mutex_unlock(&mutexConvoyeur);
-	i++;
+      pthread_cond_broadcast(&condPose);//fonctionne comme un pthread_cond_signal mais prévient TOUS les threads en wait
+      i++;
     }
     else {
-	pthread_mutex_lock(&mutexConvoyeur);
-	pthread_cond_broadcast(&condPose2);
-	pthread_mutex_unlock(&mutexConvoyeur);
-        i = 0;
+      pthread_cond_broadcast(&condPose2);
+      i = 0;
     }
+    pthread_mutex_unlock(&mutexConvoyeur);
+
   }
   pthread_exit(NULL);
 }
 
 void initialiserConvoyeur(){
     num=0; //compteur pour les id pieces
-    tailleConv=12; //taille du convoyeur doit toujours être pair!
-    vitesseConv=2;
+    //tailleConv=12; //taille du convoyeur doit toujours être pair!
+    tailleConv=(NbMachine+2)*2; //deux places pour les machines + 2 pour chaque robots (alim et retrait)
+    vitesseConv=1;
     pthread_mutex_init(&mutexConvoyeur,NULL);
     conv=malloc(tailleConv*sizeof(piece));
     pieceVideConv = malloc(sizeof(piece));

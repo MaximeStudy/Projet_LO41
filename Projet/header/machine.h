@@ -46,6 +46,6 @@ listeMachine * maListeMachine;
 
 pthread_attr_t thread_attr;
 
-void creationMachines(void);
+void creationMachines(int nb);
 
 #endif
