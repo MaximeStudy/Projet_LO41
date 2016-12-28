@@ -7,7 +7,8 @@
 #include <stdint.h> //cast intptr_t
 #include <unistd.h> // sleep
 
-#define NbMachine	4 //num
+//#define NbMachine	4 //num
+int NbMachine;
 struct piece {
   int num;
   int ope; //operation d'usinage

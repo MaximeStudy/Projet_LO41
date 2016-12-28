@@ -19,7 +19,7 @@
         pthread_cond_wait(&ma->dormir,&mutexAlim);
     }
 
-   
+
     ma->etat=1;
     pthread_cond_signal(&condAlim);
     //printf("nb attente %d\n",nbAttente);
@@ -28,7 +28,7 @@
     //previent le robot d'alim
 
     //sleep(1);
-    
+
 
 
     //attente de reponse du robot d'alim
@@ -37,11 +37,11 @@
     while (1){
 		pthread_cond_wait(&condPose,&mutexAlim);
 		if (conv[indexConv].num != -1 && conv[indexConv].estUsine == 0 && conv[indexConv].ope == ma->ope){
-	
+
 			p = retirerPieceConvoyeur(indexConv);
 			break;
 		}
-    }       
+    }
 
     pthread_cond_signal(&(ma->dormir));
 
@@ -58,7 +58,7 @@
     //printf("2.machine n°%d\n",(ma->numMachine));
 
 	pthread_cond_wait(&(ma->attendre),&(ma->mutMachine));
-	
+
 	printf("%d FIN\n",(ma->numMachine));
 
     pthread_mutex_lock(&mutexAlim);
@@ -71,9 +71,9 @@
 		    break;
 		}
 	}
-	
+
     ma->etat=0;
-    
+
     pthread_mutex_unlock(&mutexAlim);
 
   }
@@ -98,7 +98,7 @@ void * fonc_machine(void * arg) {
 				break;
 			}
 			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
-    		} 		
+    		}
 		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->dormir)); //on previent le thread suivi de la machine que la machine va traiter la piece.
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
@@ -112,7 +112,7 @@ void * fonc_machine(void * arg) {
 		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->dormir)); //on signal qu'on a terminé le traitement sur la piece à suivi machine
 		pthread_mutex_unlock(&(ma->mutMachine));
-		
+
 		p.estUsine = 1; //on dit à la piece qu'elle est unisé.
 
 		//printf("Machine ATTEND REPONSE DE SUIVI %d\n", ma->numMachine);
@@ -143,6 +143,7 @@ void * fonc_machine(void * arg) {
 
 void creationMachines(void) {
   int i;
+	NbMachine=4;
   maListeMachine=malloc(NbMachine*sizeof(machine));
   //permet d'eviter la fuite memoire
   if(pthread_attr_init(&thread_attr)!=0) {
