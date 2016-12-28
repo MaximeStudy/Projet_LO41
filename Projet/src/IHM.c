@@ -177,8 +177,10 @@ void faireDefaillance(void) {
                   faireParDefaut();
                   break;
               case 2 :
+                  //TODO
                   break;
               case 3:
+                  //TODO
                   break;
               case 0:
                   break;
