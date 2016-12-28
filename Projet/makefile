@@ -1,7 +1,7 @@
 all: atelier
 
-atelier : ./object/machine.o ./object/main.o ./object/superviseur.o ./object/robot.o ./object/convoyeur.o
-	gcc -o atelier ./object/machine.o ./object/main.o ./object/superviseur.o ./object/robot.o ./object/convoyeur.o -pthread
+atelier : ./object/machine.o ./object/main.o ./object/superviseur.o ./object/robot.o ./object/convoyeur.o ./object/IHM.o
+	gcc -o atelier ./object/machine.o ./object/main.o ./object/superviseur.o ./object/robot.o ./object/convoyeur.o ./object/IHM.o -pthread
 
 ./object/machine.o : ./src/machine.c
 	gcc -o ./object/machine.o -c ./src/machine.c -pthread
@@ -11,6 +11,9 @@ atelier : ./object/machine.o ./object/main.o ./object/superviseur.o ./object/rob
 
 ./object/robot.o : ./src/robot.c
 	gcc -o ./object/robot.o -c ./src/robot.c -pthread
+
+./object/IHM.o : ./src/IHM.c
+	gcc -o ./object/IHM.o -c ./src/IHM.c -pthread
 
 ./object/superviseur.o : ./src/superviseur.c
 	gcc -o ./object/superviseur.o -c ./src/superviseur.c -pthread

@@ -6,12 +6,12 @@
 #include "../header/robot.h"
 #include "../header/superviseur.h"
 #include "../header/convoyeur.h"
-
+#include "../header/IHM.h"
 int main()
 {
   creationMachines();
   creationRobots();
-//initaliserSuiviMachine();  
+//initaliserSuiviMachine();
 Superviseur();
 
   sleep(2);
