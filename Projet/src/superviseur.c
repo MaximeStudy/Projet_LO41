@@ -228,14 +228,15 @@ void * threadSuiviMachine(void * arg) {
 		rc = gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
-		ts.tv_sec += 50;
+		ts.tv_sec += 15;
 		//on s'endort le temps que la piece soit récupéré par la machine.
-		//mais si le temps dépasse les 20 secondes de traitement (ts), le SYSTEME passe en défaillant
+		//mais si le temps dépasse les 15 secondes de traitement (ts), le SYSTEME passe en défaillant
 		if(pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachine),&ts) != 0){
 			pthread_mutex_unlock(&(ma->mutMachine));
 			ma->defaillant = 1;
-			printf("%d ECHEC TIMEDWAIT\n",ma->numMachine);
+			printf("Machine %d ECHEC TIMEDWAIT : retirer pièce du convoyeur\n",ma->numMachine);
 			EnMarche = 0;
+      killThreads(); //le systeme meurt
 			break;
 		}
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex

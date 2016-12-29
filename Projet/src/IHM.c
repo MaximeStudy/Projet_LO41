@@ -130,7 +130,7 @@ void fairePerso(void)
   int tab[nombreMachine];
   for(i=0;i<nombreMachine;i++)
   {
-    printf("Nombre de pieces machine %d ?\n",i);
+    printf("Nombre de pièces machine %d ?\n",i);
     scanf("%d",tab+i); //TODO verif int dans le scan f
   }
   creationMachines(nombreMachine); //temps usinage de machines est i+1
@@ -175,9 +175,12 @@ void faireDefaillance(void) {
               case 1 :
                   modeDeg1 = 0;
                   faireParDefaut();
+                  modeDeg1 = 1;
                   break;
               case 2 :
-                  //TODO
+                  modeDeg2=0;
+                  faireParDefaut();
+                  modeDeg2=1;
                   break;
               case 3:
                   //TODO
@@ -193,7 +196,8 @@ void faireDefaillance(void) {
 
 void menu(void) {
     int choix;     // main variables
-    modeDeg1 = 1; //pour le mode degrade 1
+    modeDeg1 = 1; //désactive le mode degrade 1
+    modeDeg2 = 1; //désactive le mode degrade 2
 
     choix = selectionChoix();   // get user's first selection
 

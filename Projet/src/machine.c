@@ -89,6 +89,10 @@ void * fonc_machine(void * arg) {
 		pthread_cond_wait(&(ma->attendre), &(ma->mutMachine)); //on attend qu'une piece soit arrivé au superviseur
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 		//printf("Machine se reveille %d\n", ma->numMachine);
+
+		if(modeDeg2==0 && ma->numMachine==0) //simulation du deuxieme cas de defaillance pour la machine 0
+			sleep(15);
+
 		while (1){
 			pthread_cond_wait(&condPose,&mutexConvoyeur); //on attend d'être sur un tournant pair pour regarder
 			if (conv[indexConv].num != -1 && conv[indexConv].ope == ma->ope){
