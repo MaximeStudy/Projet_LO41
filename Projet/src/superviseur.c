@@ -133,38 +133,7 @@ void creerPiece(int ope)
 
 }
 
-/* Suivi machine du superviseur */
-//Version 1
-/*void * threadSuiviMachine(void * arg) {
-  machine * ma=(machine *)arg;
-  struct timeval tp;
-  struct timespec ts;
-  int rc;
-  int res;
-  pthread_mutex_lock(&(ma->mutMachineDefaillance));
-  while(1) {
-    pthread_cond_wait(&(ma->dormir),&(ma->mutMachine));
-    rc = gettimeofday(&tp, NULL);
-    ts.tv_sec = tp.tv_sec;
-    ts.tv_nsec = tp.tv_usec*1000;
-    ts.tv_sec += 20;
-    printf("%d BBBBB\n",(ma->numMachine));
-    res = pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachineDefaillance),&ts);
-    if(res != 0){
-      //pthread_mutex_unlock(&(ma->mutMachineDefaillance));
-      ma->defaillant = 1;
-      printf("%d echec!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n",(ma->numMachine));
-      break;
-    }
 
-    printf("%d OKKKKKKKKKKKKK\n",(ma->numMachine));
-    sleep(2);
-    pthread_cond_signal(&(ma->attendre));
-  }
-
-  pthread_mutex_unlock(&(ma->mutMachineDefaillance));
-  pthread_exit(NULL);
-}*/
 void killThreads(void)
 {
   //permet de meetre le système en defaillance TODO faire egalement les free
@@ -179,8 +148,10 @@ void killThreads(void)
     pthread_cancel(maListeMachine[i]->thread_id);
     pthread_cancel(maListeSuiviMachine[i]);
   }
-
 }
+
+
+
 //version 2
 void * threadSuiviMachine(void * arg) {
 	machine * ma=(machine *)arg;
@@ -190,39 +161,27 @@ void * threadSuiviMachine(void * arg) {
 
 	while(EnMarche == 1 && ma->defaillant == 0){
 
-		//printf("%d avant if\n",ma->numMachine);
-
 		if (recupererElementEnTete(ma->listeAttente) == NULL){ //si pas de piece pour cette machine
 			pthread_cond_wait(&(ma->dormir),&(ma->mutMachine)); //on s'endort le temps d'en recevoir une
 			pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 		}
-		//printf("%d apres if\n",ma->numMachine);
 		pthread_mutex_lock(&MitSurRobotAlim); //on tente de lock pour poser la piece sur le robot d'alim
 		pieceRobotAlim = recupererElementEnTete(ma->listeAttente); //on la pose
-		//printf("%d apres premier lock\n",ma->numMachine);
 		ma->listeAttente=supprimerElementEnTete(ma->listeAttente); //on supprime la piece de la liste d'attente
-		//printf("%d on signal au robot\n",ma->numMachine);
 		pthread_mutex_lock(&mutexAlim);
-		pthread_cond_broadcast(&RobotAlim); //on envoie un signal au robot d'alim + son suivi pour lui dire que c'est fait
+		pthread_cond_signal(&RobotAlim); //on envoie un signal au robot d'alim + son suivi pour lui dire que c'est fait
 		pthread_mutex_unlock(&mutexAlim);
-
-		//printf("%d on s'endort\n",ma->numMachine);
 
 		pthread_cond_wait(&(ma->dormir),&(ma->mutMachine)); //on s'endort le temps que le robot fasse la manip
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 
 		pthread_mutex_unlock(&MitSurRobotAlim); //on unlock pour que les autres thread de suivi puissent poser une piece sur le robot d'alim
 
-		//printf("%d on se reveil et on signal a la machine\n",ma->numMachine);
-
 		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->attendre)); //on previent la machine que la piece arrive
 		pthread_mutex_unlock(&(ma->mutMachine));
 
-		//printf("%d on attend reponse de machine \n",ma->numMachine);
-
 		//on attend que la machine recoive la piece et lance le traitement
-
 
 
 		rc = gettimeofday(&tp, NULL);
@@ -234,15 +193,11 @@ void * threadSuiviMachine(void * arg) {
 		if(pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachine),&ts) != 0){
 			pthread_mutex_unlock(&(ma->mutMachine));
 			ma->defaillant = 1;
-			printf("Machine %d ECHEC TIMEDWAIT : retirer pièce du convoyeur\n",ma->numMachine);
 			EnMarche = 0;
-      killThreads(); //le systeme meurt
+      			killThreads(); //le systeme meurt
 			break;
 		}
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
-
-
-		//printf("%d on demarre timedwait\n",ma->numMachine);
 
 		rc = gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
@@ -253,44 +208,29 @@ void * threadSuiviMachine(void * arg) {
 		if(pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachine),&ts) != 0){
 			pthread_mutex_unlock(&(ma->mutMachine));
 			ma->defaillant = 1;
-			printf("%d ECHEC TIMEDWAIT\n",ma->numMachine);
 			break;
 		}
 
-		sleep(2); //on imagine qu'on etudie le compte rendu
+		sleep(1); //on imagine qu'on etudie le compte rendu
 		pthread_mutex_unlock(&(ma->mutMachine));
 
-		//printf("%d SUCESS TIMEDWAIT et envoie un signal a machine\n",ma->numMachine);
-
-
-		pthread_mutex_lock(&AttentRetrait); //VOIR LIGNE 246 POUR L'AUTRE CAS!! on lock le robot de retrait
-			//en mettant le lock ici, on est sur que le robot de retrait retire la piece de ce robot!
-			//moins rapide
+		pthread_mutex_lock(&AttentRetrait); //on bloque le robot de retait (donc si une autre machine veut poser une piece, elle est bloqué le temps que la piece soit retiré
 
 		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->attendre)); //on reveille la machine pour qu'elle finisse son execusion et se remette en attente.
 		pthread_mutex_unlock(&(ma->mutMachine));
 
-		//printf("%d Attend reponse de machine\n",ma->numMachine);
-
 		pthread_cond_wait(&(ma->dormir),&(ma->mutMachine)); //on attend que la piece soit posé sur le convoyeur.
 		pthread_mutex_unlock(&(ma->mutMachine));
 
-		//printf("%d On reveille ROBOTRETRAIT\n",ma->numMachine);
-
-		//pthread_mutex_lock(&AttentRetrait); //VOIR LIGNE 232 POUR L'AUTRE CAS!! on lock le robot de retrait
-			//en mettant le lock ici, on est pas sur que le robot de retrait retire la piece de ce robot
-			//plus rapide
-
 		pthread_mutex_lock(&mutexRetrait);
-		pthread_cond_broadcast(&RobotRetrait); //on signal au robot de retrait + son suivi qu'une piece arrive en le reveillant
+		pthread_cond_signal(&RobotRetrait); //on signal au robot de retrait + son suivi qu'une piece arrive en le reveillant
 		pthread_mutex_unlock(&mutexRetrait);
 
 		pthread_cond_wait(&(ma->dormir),&(ma->mutMachine)); //on attend que la piece soit extraite du conv
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libre le mutex
 		pthread_mutex_unlock(&AttentRetrait); //on libere le mutex
 
-		printf("%d Machine traitement fini\n",ma->numMachine);
 	}
 	pthread_exit(NULL);
 }
@@ -306,9 +246,7 @@ void initaliserSuiviMachine()
   pthread_cond_init(&RobotAlim,NULL);
   pthread_mutex_init(&mutexRetrait,NULL);
   pthread_cond_init(&RobotRetrait,NULL);
-  pthread_mutex_init(&mutexSuiviAlim,NULL);
   pthread_cond_init(&RobotSuiviAlim,NULL);
-  pthread_mutex_init(&mutexSuiviRetrait,NULL);
   pthread_cond_init(&RobotSuiviRetrait,NULL);
   //..............
   maListeSuiviMachine=malloc(NbMachine*sizeof(machine));
@@ -324,23 +262,21 @@ void * fonc_SuiviRobotAlim(void * arg) {
 	struct timeval tp;
 	struct timespec ts;
 	while(EnMarche == 1){
-		pthread_cond_wait(&RobotSuiviAlim,&mutexSuiviAlim);
-		pthread_mutex_unlock(&mutexSuiviAlim); //on débloque le mutex
+		pthread_cond_wait(&RobotSuiviAlim,&mutexAlim);
+		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
 		rc = gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
 		ts.tv_sec += 20;
 		//on s'endort le temps que la piece soit posé sur le convoyeur.
 		//mais si le temps dépasse les 5 secondes de traitement (ts), le SYSTEME passe en défaillant
-		if(pthread_cond_timedwait(&RobotSuiviAlim,&mutexSuiviAlim,&ts) != 0){
-			pthread_mutex_unlock(&mutexSuiviAlim);
-			printf("Robot Alim ECHEC TIMEDWAIT\n");
+		if(pthread_cond_timedwait(&RobotSuiviAlim,&mutexAlim,&ts) != 0){
+			pthread_mutex_unlock(&mutexAlim);
       killThreads(); //tout le systeme est KO
 			EnMarche = 0;
 			break;
 		}
-		printf("Robot Alim SUCCESS TIMEDWAIT\n");
-		pthread_mutex_unlock(&mutexSuiviAlim);
+		pthread_mutex_unlock(&mutexAlim);
 	}
 	pthread_exit(NULL);
 }
@@ -350,22 +286,20 @@ void * fonc_SuiviRobotRetrait(void * arg) {
 	struct timeval tp;
 	struct timespec ts;
 	while(EnMarche == 1){
-		pthread_cond_wait(&RobotSuiviRetrait,&mutexSuiviRetrait);
-		pthread_mutex_unlock(&mutexSuiviRetrait);
+		pthread_cond_wait(&RobotSuiviRetrait,&mutexRetrait);
+		pthread_mutex_unlock(&mutexRetrait);
 		rc = gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
 		ts.tv_sec += 30;
 		//on s'endort le temps que la piece soit posé sur le convoyeur.
 		//mais si le temps dépasse les 20 secondes de traitement (ts), le SYSTEME passe en défaillant
-		if(pthread_cond_timedwait(&RobotSuiviRetrait,&mutexSuiviRetrait,&ts) != 0){
-			pthread_mutex_unlock(&mutexSuiviRetrait);
-			printf("Robot Retrait ECHEC TIMEDWAIT\n");
+		if(pthread_cond_timedwait(&RobotSuiviRetrait,&mutexRetrait,&ts) != 0){
+			pthread_mutex_unlock(&mutexRetrait);
 			EnMarche = 0;
 			break;
 		}
-		printf("Robot Retrait SUCCESS TIMEDWAIT\n");
-		pthread_mutex_unlock(&mutexSuiviRetrait);
+		pthread_mutex_unlock(&mutexRetrait);
 	}
 	pthread_exit(NULL);
 }

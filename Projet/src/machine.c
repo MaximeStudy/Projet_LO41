@@ -2,85 +2,6 @@
 #include "../header/robot.h"
 #include "../header/convoyeur.h"
 
-//Version 1
-/*void * fonc_machine(void * arg) {
-  machine * ma=(machine *)arg;
-  sleep(2);
-  // printf("num machine : %d\n",ma->numMachine);
-  // printf("Ope : %d\n",ma->ope);
-  // printf("tpsUsinage : %d\n\n",ma->tpsUsinage);
-  int indexConv = (int)(2*ma->numMachine+1);
-  piece p;
-  while(1) {
-    pthread_mutex_lock(&mutexAlim);
-    if(ma->listeAttente==NULL) {
-        //la liste est nul -> attendre
-        //printf("La machine %d dort car il y a pas de piece en attente\n",mutexAlim);
-        pthread_cond_wait(&ma->dormir,&mutexAlim);
-    }
-
-
-    ma->etat=1;
-    pthread_cond_signal(&condAlim);
-    //printf("nb attente %d\n",nbAttente);
-    nbAttente=nbAttente+1;
-
-    //previent le robot d'alim
-
-    //sleep(1);
-
-
-
-    //attente de reponse du robot d'alim
-
-    pthread_cond_wait(&ma->attendre,&mutexAlim);
-    while (1){
-		pthread_cond_wait(&condPose,&mutexAlim);
-		if (conv[indexConv].num != -1 && conv[indexConv].estUsine == 0 && conv[indexConv].ope == ma->ope){
-
-			p = retirerPieceConvoyeur(indexConv);
-			break;
-		}
-    }
-
-    pthread_cond_signal(&(ma->dormir));
-
-	printf("%d DEBUT\n",(ma->numMachine));
-
-    pthread_mutex_unlock(&mutexAlim);
-
-    sleep(ma->tpsUsinage+10);
-
-	pthread_cond_signal(&(ma->dormir));
-
-    p.estUsine = 1;
-
-    //printf("2.machine n°%d\n",(ma->numMachine));
-
-	pthread_cond_wait(&(ma->attendre),&(ma->mutMachine));
-
-	printf("%d FIN\n",(ma->numMachine));
-
-    pthread_mutex_lock(&mutexAlim);
-
-	while (1){
-		pthread_cond_wait(&condPose2,&mutexAlim);
-		if (conv[indexConv+1].num == -1){
-		    ajouterPieceConvoyeur(indexConv+1,p);
-            pthread_cond_signal(&condRetrait);
-		    break;
-		}
-	}
-
-    ma->etat=0;
-
-    pthread_mutex_unlock(&mutexAlim);
-
-  }
-  pthread_exit(NULL);
-}*/
-
-//version 2
 void * fonc_machine(void * arg) {
 	machine * ma=(machine *)arg;
 	piece p;
@@ -88,7 +9,6 @@ void * fonc_machine(void * arg) {
 	while(1){
 		pthread_cond_wait(&(ma->attendre), &(ma->mutMachine)); //on attend qu'une piece soit arrivé au superviseur
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
-		//printf("Machine se reveille %d\n", ma->numMachine);
 
 		if(modeDeg2==0 && ma->numMachine==0) //simulation du deuxieme cas de defaillance pour la machine 0
 			sleep(15);
@@ -96,7 +16,6 @@ void * fonc_machine(void * arg) {
 		while (1){
 			pthread_cond_wait(&condPose,&mutexConvoyeur); //on attend d'être sur un tournant pair pour regarder
 			if (conv[indexConv].num != -1 && conv[indexConv].ope == ma->ope){
-				//printf("Machine PREND LA PIECE %d\n", ma->numMachine);
 				p = retirerPieceConvoyeur(indexConv); //on retire la piece
 				pthread_mutex_unlock(&mutexConvoyeur);
 				break;
@@ -107,11 +26,7 @@ void * fonc_machine(void * arg) {
 		pthread_cond_signal(&(ma->dormir)); //on previent le thread suivi de la machine que la machine va traiter la piece.
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 
-		//printf("Machine DEMARRE USINAGE %d\n", ma->numMachine);
-
 		sleep(ma->tpsUsinage); //on execute le traitement sur la machine
-
-		//printf("Machine FINI USINAGE %d\n", ma->numMachine);
 
 		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->dormir)); //on signal qu'on a terminé le traitement sur la piece à suivi machine
@@ -119,16 +34,12 @@ void * fonc_machine(void * arg) {
 
 		p.estUsine = 1; //on dit à la piece qu'elle est unisé.
 
-		//printf("Machine ATTEND REPONSE DE SUIVI %d\n", ma->numMachine);
-
 		pthread_cond_wait(&(ma->attendre),&(ma->mutMachine)); //on attend une réponse de la part du suivi
 		pthread_mutex_unlock(&(ma->mutMachine));
-		//printf("Machine REPONSE RECU DEMARRE PLACEMENT %d\n", ma->numMachine);
 
 		while (1){
 			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur);//on attend d'être sur un tournant impair pour regarder
 			if (conv[indexConv+1].num == -1){
-				//printf("Machine POSE SUR CONVOYEUR%d\n", ma->numMachine);
 				ajouterPieceConvoyeur(indexConv+1,p); //on pose la piece
 				pthread_mutex_unlock(&mutexConvoyeur);
 				break;
@@ -161,17 +72,14 @@ void creationMachines(int nb) {
   /* creation des threads */
   for (i = 0; i < NbMachine; i++) {
     machine * nouvelleMachine = malloc(sizeof(machine));
-    //pthread_mutex_init(&nouvelleMachine->mutexMachine,NULL);
     pthread_cond_init(&nouvelleMachine->dormir,NULL);
     pthread_cond_init(&nouvelleMachine->attendre,NULL);
-    //pthread_mutex_init(&nouvelleMachine->mutMachineDefaillance,NULL);
     pthread_mutex_init(&nouvelleMachine->mutMachine,NULL);
 
     nouvelleMachine->numMachine=i;
     nouvelleMachine->tpsUsinage=i+1;
     nouvelleMachine->ope=i;
     nouvelleMachine->listeAttente=NULL;
-    //nouvelleMachine->etat=0;
     nouvelleMachine->defaillant=0;
     maListeMachine[i]=nouvelleMachine;
 

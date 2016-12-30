@@ -3,40 +3,6 @@
 #define PERSONNALISE 2
 #define DEFAILLANCE 3
 #define QUIT 0
-//siganl doesn't works because threads are stopped
-// void erreur(const char* msg) {
-//   fprintf(stderr, "%s\n",msg);
-// }
-// void traitantSIGTSTP(int num) {
-//   if(num!=SIGTSTP)
-//     erreur("Probleme sur SIGTSTP");
-//
-//   actionTSTP.sa_handler=SIG_DFL;
-//   sigaction(SIGTSTP,&actionTSTP,NULL);
-//
-//   raise(SIGTSTP);
-// }
-//
-// void traitantSIGCONT(int num) {
-//   if(num!=SIGCONT)
-//     erreur("Probleme sur SIGCONT");
-//   printf("Bienvenu dans le menu de SIGCONT\n");
-//   actionCONT.sa_handler=SIG_DFL;
-//   sigaction(SIGCONT,&actionCONT,NULL);
-//   sleep(2);
-//   //raise(SIGCONT);
-// }
-//
-// void lancerSigaction()
-// {
-//     printf("Hello !\n");
-//
-//     actionTSTP.sa_handler=traitantSIGTSTP;
-//     sigaction(SIGTSTP,&actionTSTP,NULL);
-//
-//     actionCONT.sa_handler=traitantSIGCONT;
-//     sigaction(SIGCONT,&actionCONT,NULL);
-// }
 
 int selectionChoixDefaillance(void)
 {
@@ -58,20 +24,27 @@ int selectionChoixDefaillance(void)
 
 int selectionChoix(void)
 {
-  int option;
+  char option[1];
+  int res;
   printf("\nMenu de sélection :\n\n");
   printf("1.\tPar défaut\n");
   printf("2.\tMode personnalisé\n");
   printf("3.\tMode défaillance\n");
   printf("0.\tQuit\n\n");
   printf("Faite votre choix : ");
-  while( (scanf(" %d", &option) != 1) || (option < 0)  || (option > 3))  // probleme si on rentre un char !!!!
+  scanf("%s", option);
+  res = atoi(option);
+  printf("%d\n",res);
+  while( (res != 1) || (res < 0)  || (res > 3)) 
   {
     fflush(stdin);                    /* clear bad data from buffer */
     printf("La selection n'est pas valide. Essayez à nouveau.\n\n");
     printf("Votre choix ? ");
+    scanf(" %s", option);
+  res = atoi(option);
+  printf("%d\n",res);
   }
-    return option;
+    return res;
 }
 
 void faireQuitter()
