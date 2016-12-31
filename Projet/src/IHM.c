@@ -2,7 +2,7 @@
 #define PAR_DEFAUT 1
 #define PERSONNALISE 2
 #define DEFAILLANCE 3
-#define QUIT 0
+#define QUIT 4
 
 int selectionChoixDefaillance(void)
 {
@@ -11,7 +11,7 @@ int selectionChoixDefaillance(void)
   printf("\t1.\tRobot alimentation : Placement sur convoyeur\n");
   printf("\t2.\tMachine : Retirer piece du convoyeur\n");
   printf("\t3.\tMachine : travail long \n");
-  printf("\t0.\tQuit\n\n");
+  printf("\t4.\tQuit\n\n");
   printf("Faite votre choix : ");
   while( (scanf(" %d", &option) != 1) || (option < 0)  || (option > 3))  // probleme si on rentre un char !!!!
   {
@@ -30,19 +30,19 @@ int selectionChoix(void)
   printf("1.\tPar défaut\n");
   printf("2.\tMode personnalisé\n");
   printf("3.\tMode défaillance\n");
-  printf("0.\tQuit\n\n");
+  printf("4.\tQuit\n\n");
   printf("Faite votre choix : ");
   scanf("%s", option);
   res = atoi(option);
   printf("%d\n",res);
-  while( (res != 1) || (res < 0)  || (res > 3)) 
+  while( (res < 1)  || (res > 4)) 
   {
     fflush(stdin);                    /* clear bad data from buffer */
     printf("La selection n'est pas valide. Essayez à nouveau.\n\n");
     printf("Votre choix ? ");
     scanf(" %s", option);
-  res = atoi(option);
-  printf("%d\n",res);
+    res = atoi(option);
+    printf("%d\n",res);
   }
     return res;
 }
@@ -158,7 +158,7 @@ void faireDefaillance(void) {
               case 3:
                   //TODO
                   break;
-              case 0:
+              case 4:
                   break;
               default:    printf("Oups! Une erreur dans le choix du menu est survenu. ");
                           printf("Veuillez réessayer svp.\n");
