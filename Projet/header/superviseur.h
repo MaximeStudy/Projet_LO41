@@ -40,6 +40,7 @@ void initaliserSuiviMachine();
 void Superviseur();
 void * fonc_SuiviRobotAlim(void * arg);
 void * fonc_SuiviRobotRetrait(void * arg);
+void killThreads(void);
 
 piece *pieceRobotAlim;
 int EnMarche;

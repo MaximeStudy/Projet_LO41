@@ -26,7 +26,6 @@ void * fonc_machine(void * arg) {
 		pthread_cond_signal(&(ma->dormir)); //on previent le thread suivi de la machine que la machine va traiter la piece.
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 
-		printf("%d,%d\n",modeDeg3 , ma->numMachine);
 		if (modeDeg3 == 0 && ma->numMachine == 0) sleep(22);
 		
 		else sleep(ma->tpsUsinage); //on execute le traitement sur la machine

@@ -25,7 +25,7 @@ int selectionChoixDefaillance(void)
     printf("Votre choix ? ");
   option = getchar();
   while(getchar() != '\n');
-  res = option-48;
+  res = option-48; //code ascii
   }
     return res;
 }
@@ -85,7 +85,10 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
    /* Creation convoyeur */
 
   //afficherConvoyeur();
-  sleep(34);
+  pthread_cond_wait(&Cmenu,&mtx_menu);
+  pthread_mutex_unlock(&mtx_menu);
+  killThreads();
+  
   printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {
@@ -96,7 +99,7 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
  affichage=0;
 
   //libererConvoyeur();
-  exit(0);
+  
 }
 
 void fairePerso(void)
@@ -135,6 +138,7 @@ void fairePerso(void)
    /* Creation convoyeur */
 
   //afficherConvoyeur();
+
   sleep(34); //TODO comment on sait quand afficher la fin ?
   affichage=0;
 
@@ -152,7 +156,7 @@ void faireDefaillance(void) {
 
   int choix;     // main variables
   choix = selectionChoixDefaillance();
-  while(choix!=0)   //execute so long as choice is not equal to QUIT
+  while(choix!=5)   //execute so long as choice is not equal to QUIT
   {
       switch(choix)
           {
@@ -217,37 +221,23 @@ void menu(void) {
    }
  }
 
-void lancerIHM(void) {
-  //lancerSigaction(); don't works
-  menu();
-  // creationMachines();
-  // creationRobots();
-  // //initaliserSuiviMachine();
-  // Superviseur();
-  //
-  // sleep(2);
-  //
-  // int i;
-  // for(i=0;i<24;i++)
-  // {
-  //      creerPiece(i%4);
-  // }
-  //
-  //  /* Creation convoyeur */
-  //
-  // initialiserConvoyeur();
-  //
-  // afficherConvoyeur();
-  //
-  //
-  // sleep(600);
-  // printf("nb attente : %d",nbAttente);
-  // for(i=0;i<NbMachine;i++)
-  // {
-  //   printf("\nList %d\n",i);
-  //   afficherListe(maListeMachine[i]->listeAttente);
-  //   //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
-//  }
+void yolo(int num){
+  if(num!=SIGINT) printf("Echec");
 
-  //libererConvoyeur();
+  pthread_mutex_lock(&mtx_menu);
+  pthread_cond_signal(&Cmenu);
+  pthread_mutex_unlock(&mtx_menu);
+  return;
+
+}
+
+void lancerIHM(void) {
+
+
+struct sigaction sigInt;
+sigInt.sa_handler=yolo; 
+sigaction(SIGINT, &sigInt, NULL);
+  pthread_mutex_init(&mtx_menu,NULL);
+  pthread_cond_init(&Cmenu,NULL);
+  menu();
 }

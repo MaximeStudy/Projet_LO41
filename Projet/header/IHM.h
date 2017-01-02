@@ -11,8 +11,10 @@
 #include "../header/superviseur.h"
 #include "../header/convoyeur.h"
 
-struct sigaction actionTSTP;
-struct sigaction actionCONT;
+struct sigaction actionINT;
+
+pthread_cond_t Cmenu;
+pthread_mutex_t mtx_menu;
 
 void lancerIHM(void);
 
