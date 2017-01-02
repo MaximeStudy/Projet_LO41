@@ -6,25 +6,33 @@
 
 int selectionChoixDefaillance(void)
 {
-  int option;
+  char option;
+  int res;
   printf("\nMenu de sélection de défaillances :\n\n");
   printf("\t1.\tRobot alimentation : Placement sur convoyeur\n");
   printf("\t2.\tMachine : Retirer piece du convoyeur\n");
   printf("\t3.\tMachine : travail long \n");
-  printf("\t4.\tQuit\n\n");
+  printf("\t4.\tRobot Retrait : retrait du convoyeur\n");
+  printf("\t5.\tQuit\n\n");
   printf("Faite votre choix : ");
-  while( (scanf(" %d", &option) != 1) || (option < 0)  || (option > 3))  // probleme si on rentre un char !!!!
+  option = getchar();
+  while(getchar() != '\n');
+  res = option-48;
+  while( (1 > res)  || (res > 5))
   {
     fflush(stdin);                    /* clear bad data from buffer */
     printf("La selection n'est pas valide. Essayez à nouveau.\n\n");
     printf("Votre choix ? ");
+  option = getchar();
+  while(getchar() != '\n');
+  res = option-48;
   }
-    return option;
+    return res;
 }
 
 int selectionChoix(void)
 {
-  char option[1];
+  char option;
   int res;
   printf("\nMenu de sélection :\n\n");
   printf("1.\tPar défaut\n");
@@ -32,17 +40,18 @@ int selectionChoix(void)
   printf("3.\tMode défaillance\n");
   printf("4.\tQuit\n\n");
   printf("Faite votre choix : ");
-  scanf("%s", option);
-  res = atoi(option);
-  printf("%d\n",res);
+  option = getchar();
+  while(getchar() != '\n');
+  res = option-48;
+printf("%d", res);
   while( (res < 1)  || (res > 4)) 
   {
     fflush(stdin);                    /* clear bad data from buffer */
     printf("La selection n'est pas valide. Essayez à nouveau.\n\n");
     printf("Votre choix ? ");
-    scanf(" %s", option);
-    res = atoi(option);
-    printf("%d\n",res);
+  option = getchar();
+  while(getchar() != '\n');
+  res = option-48;
   }
     return res;
 }
@@ -67,11 +76,12 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
   sleep(1); //attendre que les threads soient bien en place
   affichage=1;
   int i;
+  pthread_mutex_lock(&MitSurRobotAlim);
   for(i=0;i<8;i++)
   {
        creerPiece(i%4);
   }
-
+  pthread_mutex_unlock(&MitSurRobotAlim);
    /* Creation convoyeur */
 
   //afficherConvoyeur();
@@ -112,14 +122,15 @@ void fairePerso(void)
   Superviseur();
 
   sleep(2); //attendre que les threads soient bien en place
-
+  pthread_mutex_lock(&MitSurRobotAlim);
   for(i=0;i<nombreMachine;i++)
   {
     for(j=0;j<tab[i];j++)
     {
-      creerPiece(j);
+      creerPiece(i);
     }
   }
+  pthread_mutex_unlock(&MitSurRobotAlim);
   affichage=1;
    /* Creation convoyeur */
 
@@ -156,9 +167,16 @@ void faireDefaillance(void) {
                   modeDeg2=1;
                   break;
               case 3:
-                  //TODO
+                  modeDeg3 = 0;
+                  faireParDefaut();
+                  modeDeg3 = 1;
                   break;
               case 4:
+                  modeDeg4 = 0;
+                  faireParDefaut();
+                  modeDeg4 = 1;
+                  break;
+              case 5:
                   break;
               default:    printf("Oups! Une erreur dans le choix du menu est survenu. ");
                           printf("Veuillez réessayer svp.\n");
@@ -171,6 +189,8 @@ void menu(void) {
     int choix;     // main variables
     modeDeg1 = 1; //désactive le mode degrade 1
     modeDeg2 = 1; //désactive le mode degrade 2
+    modeDeg3 = 1; //désactive le mode degrade 3
+    modeDeg4 = 1; //désactive le mode degrade 4
 
     choix = selectionChoix();   // get user's first selection
 

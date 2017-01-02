@@ -40,7 +40,6 @@ void initialiserConvoyeur(int vit){
     pieceVideConv = malloc(sizeof(piece));
     pieceVideConv->num = -1;
     pieceVideConv->ope = -1;
-    pieceVideConv->estUsine = -1;
     int i;
     for (i =0 ; i<tailleConv; i++){
         conv[i] = *pieceVideConv;//*pieceVideConv;

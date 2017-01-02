@@ -47,8 +47,10 @@ void * fonc_robotRetrait(void * arg) {
 		pthread_mutex_unlock(&mutexRetrait);
 
 		pthread_mutex_lock(&mutexRetrait);
-		pthread_cond_signal(&RobotSuiviRetrait); //on averti le suivi du robot qu'on a fini
+		pthread_cond_signal(&RobotSuiviRetrait); //on averti le suivi du robot qu'on commence
 		pthread_mutex_unlock(&mutexRetrait);
+		if(modeDeg4==0)
+			sleep(20);
 
 		while (1){ //on lance la boucle pour retirer la piece
 			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur ); //on attend que ce soit impair

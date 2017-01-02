@@ -47,4 +47,6 @@ int EnMarche;
 //affichage mode degrade
 int modeDeg1;
 int modeDeg2;
+int modeDeg3;
+int modeDeg4;
 #endif
