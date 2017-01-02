@@ -27,7 +27,7 @@ void * fonc_machine(void * arg) {
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 
 		if (modeDeg3 == 0 && ma->numMachine == 0) sleep(22);
-		
+
 		else sleep(ma->tpsUsinage); //on execute le traitement sur la machine
 
 		pthread_mutex_lock(&(ma->mutMachine));

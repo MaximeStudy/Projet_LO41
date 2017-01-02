@@ -146,6 +146,16 @@ void killThreads(void)
     pthread_cancel(maListeMachine[i]->thread_id);
     pthread_cancel(maListeSuiviMachine[i]);
   }
+  free(maListeSuiviMachine);
+  for (i = 0; i < NbMachine; i++)
+  {
+    free(maListeMachine[i]);
+  }
+
+  //free(maListeMachine);
+  free(pieceVideConv);
+  free(conv);
+
 }
 
 void killThreadMachine(int numMachine){
@@ -219,7 +229,7 @@ void * threadSuiviMachine(void * arg) {
 
 		sleep(1); //on imagine qu'on etudie le compte rendu
 		pthread_mutex_unlock(&(ma->mutMachine));
-		
+
 		pthread_mutex_lock(&AttentRetrait); //on bloque le robot de retait (donc si une autre machine veut poser une piece, elle est bloqué le temps que la piece soit retiré
 
 		pthread_mutex_lock(&(ma->mutMachine));

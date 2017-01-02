@@ -40,7 +40,7 @@ void * fonc_robotAlim(void * arg) {
 
 
 void * fonc_robotRetrait(void * arg) {
-	piece p;
+	piece * p;
 	while(1)
 	{
 		pthread_cond_wait(&RobotRetrait,&mutexRetrait);//on se fait reveiller par l'un des thread suivi machine
@@ -51,12 +51,14 @@ void * fonc_robotRetrait(void * arg) {
 		pthread_mutex_unlock(&mutexRetrait);
 		if(modeDeg4==0)
 			sleep(20);
-
+		int op;
 		while (1){ //on lance la boucle pour retirer la piece
 			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur ); //on attend que ce soit impair
 			if (conv[(tailleConv-1)].num != -1){ //impair donc piece usiné
-				p = retirerPieceConvoyeur(tailleConv-1); //on retire la piece
+				*p = retirerPieceConvoyeur(tailleConv-1); //on retire la piece
 				pthread_mutex_unlock(&mutexConvoyeur);
+				op=p->ope;
+				free(p);
 				break;
 			}
 			pthread_mutex_unlock(&mutexConvoyeur);
@@ -67,9 +69,9 @@ void * fonc_robotRetrait(void * arg) {
 		pthread_mutex_unlock(&mutexRetrait);
 
 		//on retourne dormir et on unlock mutexRetrait.
-		pthread_mutex_lock(&(maListeMachine[p.ope]->mutMachine));
-		pthread_cond_signal(&(maListeMachine[p.ope]->dormir));
-		pthread_mutex_unlock(&(maListeMachine[p.ope]->mutMachine));
+		pthread_mutex_lock(&(maListeMachine[op]->mutMachine));
+		pthread_cond_signal(&(maListeMachine[op]->dormir));
+		pthread_mutex_unlock(&(maListeMachine[op]->mutMachine));
 
 	}
 	pthread_exit(NULL);
