@@ -44,7 +44,7 @@ int selectionChoix(void)
   while(getchar() != '\n');
   res = option-48;
 printf("%d", res);
-  while( (res < 1)  || (res > 4)) 
+  while( (res < 1)  || (res > 4))
   {
     fflush(stdin);                    /* clear bad data from buffer */
     printf("La selection n'est pas valide. Essayez à nouveau.\n\n");
@@ -87,8 +87,7 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
   //afficherConvoyeur();
   pthread_cond_wait(&Cmenu,&mtx_menu);
   pthread_mutex_unlock(&mtx_menu);
-  killThreads();
-  
+
   printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {
@@ -97,9 +96,11 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
     //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
  }
  affichage=0;
+ killThreads();
+
 
   //libererConvoyeur();
-  
+
 }
 
 void fairePerso(void)
@@ -235,7 +236,7 @@ void lancerIHM(void) {
 
 
 struct sigaction sigInt;
-sigInt.sa_handler=yolo; 
+sigInt.sa_handler=yolo;
 sigaction(SIGINT, &sigInt, NULL);
   pthread_mutex_init(&mtx_menu,NULL);
   pthread_cond_init(&Cmenu,NULL);

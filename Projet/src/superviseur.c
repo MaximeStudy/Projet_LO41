@@ -127,7 +127,6 @@ void creerPiece(int ope)
   	pthread_cond_signal(&(maListeMachine[ope]->dormir)); //on previent qu'il y a une pieces
   	pthread_mutex_unlock(&(maListeMachine[ope]->mutMachine)); //on libere le mutex
   }
-  printf("Hi\n" );
 
 }
 
@@ -146,16 +145,26 @@ void killThreads(void)
     pthread_cancel(maListeMachine[i]->thread_id);
     pthread_cancel(maListeSuiviMachine[i]);
   }
+  /* Libération des différentes ressources alouées */
+  /* Liste suivi machine */
   free(maListeSuiviMachine);
+
+  /* Machine*/
   for (i = 0; i < NbMachine; i++)
   {
+    /* libère toute la liste chainée*/
+    effacerListe(maListeMachine[i]->listeAttente);
+    /* libère la machine */
     free(maListeMachine[i]);
   }
+  free(maListeMachine);
 
-  //free(maListeMachine);
+  /* convoyeur */
   free(pieceVideConv);
   free(conv);
 
+  /* Libération des conditions et mutex */
+  
 }
 
 void killThreadMachine(int numMachine){
