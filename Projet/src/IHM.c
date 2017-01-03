@@ -5,6 +5,25 @@
 #define DEFAILLANCE 3
 #define QUIT 4
 
+
+void yolo(int num){
+  if(num!=SIGINT) printf("Echec");
+  //printf("Yolo");
+  /*pthread_mutex_lock(&mtx_menu);
+  pthread_cond_broadcast(&Cmenu);
+  pthread_mutex_unlock(&mtx_menu); */
+  return;
+}
+
+void yolo2(int num){
+  if(num!=SIGINT) printf("Echec");
+  //printf("Yolo2");
+  /*pthread_mutex_lock(&mtx_menu);
+  pthread_cond_broadcast(&Cmenu);
+  pthread_mutex_unlock(&mtx_menu); */
+  return;
+}
+
 int input_nombre(int * number)
 {
     printf("Nombre : ");
@@ -63,6 +82,7 @@ int selectionChoix(void)
   printf("3.\tMode défaillance\n");
   printf("4.\tQuit\n\n");
   printf("Faite votre choix : ");
+  fflush(stdout);
   option = getchar();
   while(getchar() != '\n');
   res = option-48;
@@ -87,8 +107,12 @@ void faireQuitter()
 void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
 {
 pid_t pid;
-if (pid = fork() == 0){
-  
+
+if ((pid = fork()) == 0){
+
+    actionINT.sa_handler=SIG_DFL;
+    sigaction(SIGINT, &actionINT, NULL);
+
 	  int nombreMachine=4;
 	  int vitesseC=0;
 	  printf("Mode par défaut : \n\n");
@@ -122,9 +146,10 @@ if (pid = fork() == 0){
 	  killThreads();
   }
   else {
-  	wait(0);
+    int status;
+    /* attente terminaison fils*/
+  	waitpid(pid,&status,0);
   }
-
 }
 
 
@@ -132,7 +157,10 @@ if (pid = fork() == 0){
 void fairePerso(void)
 {
   pid_t pid;
-  if (pid = fork() == 0){
+  if ((pid = fork()) == 0){
+    actionINT.sa_handler=SIG_DFL;
+    sigaction(SIGINT, &actionINT, NULL);
+
 	  int nombreMachine;
 	  int vitesseC;
 	  printf("Menu personnalisé : \n");
@@ -175,16 +203,15 @@ void fairePerso(void)
  	  killThreads();
   }
   else {
-	pthread_cond_wait(&Cmenu,&mtx_menu);
-	pthread_mutex_unlock(&mtx_menu);
-  	wait(0);
+    int status;
+    waitpid(pid,&status,0);
   }
 }
 void faireDefaillance(void) {
 
   int choix;     // main variables
   choix = selectionChoixDefaillance();
-  while(choix!=5)   
+  while(choix!=5)
   {
       switch(choix)
           {
@@ -213,7 +240,7 @@ void faireDefaillance(void) {
               default:    printf("Oups! Une erreur dans le choix du menu est survenu. ");
                           printf("Veuillez réessayer svp.\n");
           }
-    
+
 	if (choix >=1 && choix <= 5) choix =5;
 	else choix = selectionChoixDefaillance(); /* recommence la selection */
  }
@@ -251,23 +278,11 @@ void menu(void) {
    }
  }
 
-void yolo(int num){
-  if(num!=SIGINT) printf("Echec");
-
-  pthread_mutex_lock(&mtx_menu);
-  pthread_cond_broadcast(&Cmenu);
-  pthread_mutex_unlock(&mtx_menu);
-  return;
-
-}
 
 void lancerIHM(void) {
-
-
-  struct sigaction sigInt;
-  sigInt.sa_handler=yolo;
-  sigaction(SIGINT, &sigInt, NULL);
-  pthread_mutex_init(&mtx_menu,NULL);
-  pthread_cond_init(&Cmenu,NULL);
+  actionINT.sa_handler=yolo;
+  sigaction(SIGINT, &actionINT, NULL);
+  //pthread_mutex_init(&mtx_menu,NULL);
+  //pthread_cond_init(&Cmenu,NULL);
   menu();
 }
