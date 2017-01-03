@@ -134,12 +134,19 @@ void creerPiece(int ope)
 void killThreads(void)
 {
   //permet de meetre le système en defaillance TODO faire egalement les free
-  pthread_cancel(thread_robotAlim);
-  pthread_cancel(thread_robotRetrait);
-  pthread_cancel(thread_convoyeur);
+  if(pthread_cancel(thread_robotAlim)==0)
+    printf("error thread_robotAlim\n");
+  if(pthread_cancel(thread_robotRetrait)==0)
+  printf("error thread_robotRetrait\n");
+  if(pthread_cancel(thread_convoyeur)==0)
+  printf("error thread_convoyeur\n");
 
-  pthread_cancel(thread_SuiviRobotAlim);
-  pthread_cancel(thread_SuiviRobotRetrait);
+  if(pthread_cancel(thread_SuiviRobotAlim)==0)
+  printf("error thread_SuiviRobotAlim\n");
+
+  if(pthread_cancel(thread_SuiviRobotRetrait)==0)
+  printf("error thread_SuiviRobotRetrait\n");
+
   int i;
   for (i = 0; i < NbMachine; i++) {
     pthread_cancel(maListeMachine[i]->thread_id);
@@ -152,7 +159,7 @@ void killThreads(void)
   /* Machine*/
   for (i = 0; i < NbMachine; i++)
   {
-    /* libère toute la liste chainée*/
+    /* libere toute la liste chainée*/
     effacerListe(maListeMachine[i]->listeAttente);
 
     /* detruit les mutex et conditions de chaque machine */
@@ -334,6 +341,8 @@ void * fonc_SuiviRobotAlim(void * arg) {
 			EnMarche = 0;
 			break;
 		}
+    pthread_cond_signal(&RobotAlim);
+
 		pthread_mutex_unlock(&mutexAlim);
 	}
 	pthread_exit(NULL);
@@ -359,6 +368,8 @@ void * fonc_SuiviRobotRetrait(void * arg) {
       killThreads(); //tout le systeme est KO
 			break;
 		}
+    pthread_cond_signal(&RobotRetrait);
+
 		pthread_mutex_unlock(&mutexRetrait);
 	}
 	pthread_exit(NULL);

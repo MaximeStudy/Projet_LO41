@@ -30,7 +30,9 @@ void * fonc_robotAlim(void * arg) {
 		pthread_mutex_lock(&mutexAlim);
 		pthread_cond_signal(&RobotSuiviAlim); //on averti le suivi du robot qu'on a fini
 		pthread_mutex_unlock(&mutexAlim);
-		
+
+		pthread_cond_wait(&RobotAlim,&mutexAlim); //synchro pour que ça termine pas avant
+		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
 
 		pthread_mutex_unlock(&(maListeMachine[numMachine]->mutMachine));
 		pthread_cond_signal(&(maListeMachine[numMachine]->dormir)); //on previent le suivi de machine qu'on a posé la piece pour qu'il libère le mutex et qu'un autre thread de suivi puisse poser sa piece.
@@ -69,6 +71,9 @@ void * fonc_robotRetrait(void * arg) {
 		pthread_cond_signal(&RobotSuiviRetrait); //on averti le suivi du robot qu'on a fini
 		pthread_mutex_unlock(&mutexRetrait);
 
+		pthread_cond_wait(&RobotRetrait,&mutexRetrait); //synchro pour que ça termine pas avant
+		pthread_mutex_unlock(&mutexRetrait); //on débloque le mutex
+		
 		//on retourne dormir et on unlock mutexRetrait.
 		pthread_mutex_lock(&(maListeMachine[op]->mutMachine));
 		pthread_cond_signal(&(maListeMachine[op]->dormir));

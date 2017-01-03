@@ -4,6 +4,27 @@
 #define DEFAILLANCE 3
 #define QUIT 4
 
+int input_nombre(int * number)
+{
+    printf("Nombre : ");
+    if ( scanf("%d", number) == 1 ) {
+      if(*number<0)
+      {
+        printf("-> Mauvais format (inférieur à 0), Essayez à nouveau! <-\n");
+        input_nombre(number);
+      }
+      else
+      {
+        return 0;
+      }
+    }
+    else
+    {
+        scanf("%*s"); /* On jette tous ce qu'il cause probleme au scanf */
+        printf("-> Mauvais format (il faut un entier). Essayez à nouveau! <-\n");
+        input_nombre(number); // recommence
+    }
+}
 
 int selectionChoixDefaillance(void)
 {
@@ -98,27 +119,7 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
  killThreads();
 }
 
-int input_nombre(int * number)
-{
-    printf("Nombre : ");
-    if ( scanf("%d", number) == 1 ) {
-      if(*number<0)
-      {
-        printf("-> Mauvais format (inférieur à 0), Essayez à nouveau! <-\n");
-        input_nombre(number);
-      }
-      else
-      {
-        return 0;
-      }
-    }
-    else
-    {
-        scanf("%*s"); /* On jette tous ce qu'il cause probleme au scanf */
-        printf("-> Mauvais format (il faut un entier). Essayez à nouveau! <-\n");
-        input_nombre(number); // recommence
-    }
-}
+
 
 void fairePerso(void)
 {
@@ -145,7 +146,7 @@ void fairePerso(void)
   initialiserConvoyeur(vitesseC);
   Superviseur();
 
-  //sleep(2); //attendre que les threads soient bien en place
+  sleep(2); //attendre que les threads soient bien en place
   pthread_mutex_lock(&MitSurRobotAlim);
   for(i=0;i<nombreMachine;i++)
   {
