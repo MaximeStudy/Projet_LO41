@@ -66,7 +66,7 @@ void faireQuitter()
 void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
 {
   int nombreMachine=4;
-  int vitesseC=1;
+  int vitesseC=0;
   printf("Mode par défaut : \n\n");
 
   creationMachines(nombreMachine); //temps usinage de machines est i+1
@@ -74,8 +74,9 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
   initialiserConvoyeur(vitesseC);
   Superviseur();
 
-  sleep(1); //attendre que les threads soient bien en place
-  affichage=1;
+  sleep(2); //TODO attendre que les threads soient bien en place
+  //pthread_cond_wait(&Cmenu,&mtx_menu);
+  //pthread_mutex_unlock(&mtx_menu);
   int i;
   pthread_mutex_lock(&MitSurRobotAlim);
   for(i=0;i<8;i++)
@@ -89,13 +90,11 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
   pthread_cond_wait(&Cmenu,&mtx_menu);
   pthread_mutex_unlock(&mtx_menu);
 
-  printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {
     printf("\nList %d\n",i);
     afficherListe(maListeMachine[i]->listeAttente);
  }
- affichage=0;
  killThreads();
 }
 
@@ -115,9 +114,9 @@ int input_nombre(int * number)
     }
     else
     {
-        scanf("%*s"); /* <--this will read and discard whatever caused scanf to fail */
-        printf("-> Mauvais format(il faut un entier), Essayez à nouveau! <-\n");
-        input_nombre(number); // start over
+        scanf("%*s"); /* On jette tous ce qu'il cause probleme au scanf */
+        printf("-> Mauvais format (il faut un entier). Essayez à nouveau! <-\n");
+        input_nombre(number); // recommence
     }
 }
 
@@ -127,14 +126,10 @@ void fairePerso(void)
   int vitesseC;
   printf("Menu personnalisé : \n");
   printf("Vitesse du convoyeur ? (vitesse décroissante)\n");
-  //scanf("%d", &vitesseC);
   input_nombre(&vitesseC);
 
   printf("Nombre de machine total ?\n");
   input_nombre(&nombreMachine);
-  //scanf(" %d", &nombreMachine);
-
-
 
   int i;
   int j;
@@ -142,7 +137,6 @@ void fairePerso(void)
   for(i=0;i<nombreMachine;i++)
   {
     printf("Nombre de pièces machine %d ?\n",i);
-    //scanf("%d",tab+i); //TODO verif int dans le scan f
     input_nombre(tab+i);
 
   }
@@ -151,7 +145,7 @@ void fairePerso(void)
   initialiserConvoyeur(vitesseC);
   Superviseur();
 
-  sleep(2); //attendre que les threads soient bien en place
+  //sleep(2); //attendre que les threads soient bien en place
   pthread_mutex_lock(&MitSurRobotAlim);
   for(i=0;i<nombreMachine;i++)
   {
@@ -161,16 +155,12 @@ void fairePerso(void)
     }
   }
   pthread_mutex_unlock(&MitSurRobotAlim);
-  affichage=1;
    /* Creation convoyeur */
 
   //afficherConvoyeur();
   pthread_cond_wait(&Cmenu,&mtx_menu);
   pthread_mutex_unlock(&mtx_menu);
 
-  affichage=0;
-
-  printf("nb attente : %d",nbAttente);
   for(i=0;i<NbMachine;i++)
   {
     printf("\nList %d\n",i);

@@ -15,7 +15,7 @@ pthread_t thread_robotRetrait;
 /* variable globale pour rechercher les bon elements dans les listes*/
 //int valRobotAlim;
 //int valRobotRetrait;
-int nbAttente;
+//int nbAttente;
 void * creationRobots(void);
 
 #endif

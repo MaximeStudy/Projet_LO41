@@ -10,10 +10,9 @@ void * fonc_convoyeur(void * arg) {
     usleep(vitesseConv*400000+400000);
     pthread_mutex_lock(&mutexConvoyeur);
     tournerConvoyeur();
-    if(affichage==1)
-    {
-      afficherConvoyeur();
-    }
+
+    afficherConvoyeur();
+
     if (i % 2 == 0){
       pthread_cond_broadcast(&condPose);//fonctionne comme un pthread_cond_signal mais prévient TOUS les threads en wait
       i++;
@@ -30,9 +29,7 @@ void * fonc_convoyeur(void * arg) {
 
 void initialiserConvoyeur(int vit){
     num=0; //compteur pour les id pieces
-    affichage=0; //affiche pas le convoyeur
 
-    //tailleConv=12; //taille du convoyeur doit toujours être pair!
     tailleConv=(NbMachine+2)*2; //deux places pour les machines + 2 pour chaque robots (alim et retrait)
     vitesseConv=vit;
     pthread_mutex_init(&mutexConvoyeur,NULL);

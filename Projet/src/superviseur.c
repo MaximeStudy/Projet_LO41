@@ -173,8 +173,8 @@ void killThreads(void)
   pthread_mutex_destroy(&mutexConvoyeur);
 
   /* IHM*/
-  pthread_cond_destroy(&Cmenu);
-  pthread_mutex_destroy(&mtx_menu);
+  //pthread_cond_destroy(&Cmenu);
+  //pthread_mutex_destroy(&mtx_menu);
 
   /* Robot d'alimentation */
   pthread_cond_destroy(&condPose);
@@ -196,6 +196,7 @@ void killThreads(void)
   modeDeg3 = 1; //désactive le mode degrade 3
   modeDeg4 = 1; //désactive le mode degrade 4
 
+  num=0; //compteur pour les id pieces à 0
 }
 
 void killThreadMachine(int numMachine){

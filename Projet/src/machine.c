@@ -85,5 +85,9 @@ void creationMachines(int nb) {
 
     pthread_create(&(maListeMachine[i]->thread_id), &thread_attr, fonc_machine, maListeMachine[i]);
     printf("Main: thread machine %d creee: id = %ld\n",maListeMachine[i]->numMachine,(maListeMachine[i]->thread_id));
+		if(i==(NbMachine-1))
+		{
+
+		}
   }
 }
