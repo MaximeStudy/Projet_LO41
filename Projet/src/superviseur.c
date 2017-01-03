@@ -154,17 +154,38 @@ void killThreads(void)
   {
     /* libère toute la liste chainée*/
     effacerListe(maListeMachine[i]->listeAttente);
+
+    /* detruit les mutex et conditions de chaque machine */
+    pthread_cond_destroy(&(maListeMachine[i]->dormir));
+    pthread_cond_destroy(&(maListeMachine[i]->attendre));
+    pthread_mutex_destroy(&(maListeMachine[i]->mutMachine));
+
     /* libère la machine */
     free(maListeMachine[i]);
   }
   free(maListeMachine);
 
   /* convoyeur */
-  free(pieceVideConv);
-  free(conv);
+  libererConvoyeur();
 
   /* Libération des conditions et mutex */
-  
+  /* convoyeur */
+  pthread_mutex_destroy(&mutexConvoyeur);
+
+  /* IHM*/
+  pthread_cond_destroy(&Cmenu);
+  pthread_mutex_destroy(&mtx_menu);
+
+  /* Robot d'alimentation */
+  pthread_cond_destroy(&condPose);
+
+
+  /* remet les mode normaux*/
+  modeDeg1 = 1; //désactive le mode degrade 1
+  modeDeg2 = 1; //désactive le mode degrade 2
+  modeDeg3 = 1; //désactive le mode degrade 3
+  modeDeg4 = 1; //désactive le mode degrade 4
+
 }
 
 void killThreadMachine(int numMachine){

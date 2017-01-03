@@ -197,9 +197,9 @@ void menu(void) {
     modeDeg3 = 1; //désactive le mode degrade 3
     modeDeg4 = 1; //désactive le mode degrade 4
 
-    choix = selectionChoix();   // get user's first selection
+    choix = selectionChoix();   // recupere la selection de l'utilisateur
 
-    while(1)   //execute so long as choice is not equal to QUIT
+    while(1) 
     {
         switch(choix)
             {
