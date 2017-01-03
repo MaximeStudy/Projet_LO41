@@ -134,18 +134,16 @@ void creerPiece(int ope)
 void killThreads(void)
 {
   //permet de meetre le système en defaillance TODO faire egalement les free
-  if(pthread_cancel(thread_robotAlim)==0)
-    printf("error thread_robotAlim\n");
-  if(pthread_cancel(thread_robotRetrait)==0)
-  printf("error thread_robotRetrait\n");
-  if(pthread_cancel(thread_convoyeur)==0)
-  printf("error thread_convoyeur\n");
-
-  if(pthread_cancel(thread_SuiviRobotAlim)==0)
-  printf("error thread_SuiviRobotAlim\n");
-
-  if(pthread_cancel(thread_SuiviRobotRetrait)==0)
-  printf("error thread_SuiviRobotRetrait\n");
+  if(pthread_cancel(thread_robotAlim)!=0)
+  	printf("error thread_robotAlim\n");
+  if(pthread_cancel(thread_robotRetrait)!=0)
+  	printf("error thread_robotRetrait\n");
+  if(pthread_cancel(thread_convoyeur)!=0)
+  	printf("error thread_convoyeur\n");
+  if(pthread_cancel(thread_SuiviRobotAlim)!=0)
+  	printf("error thread_SuiviRobotAlim\n");
+  if(pthread_cancel(thread_SuiviRobotRetrait)!=0)
+  	printf("error thread_SuiviRobotRetrait\n");
 
   int i;
   for (i = 0; i < NbMachine; i++) {
@@ -157,14 +155,17 @@ void killThreads(void)
   free(maListeSuiviMachine);
 
   /* Machine*/
-  for (i = 0; i < NbMachine; i++)
-  {
+  for (i = 0; i < NbMachine; i++){
     /* libere toute la liste chainée*/
     effacerListe(maListeMachine[i]->listeAttente);
 
     /* detruit les mutex et conditions de chaque machine */
-    pthread_cond_destroy(&(maListeMachine[i]->dormir));
-    pthread_cond_destroy(&(maListeMachine[i]->attendre));
+    pthread_cond_signal(&(maListeMachine[i]->dormir));
+    if(pthread_cond_destroy(&(maListeMachine[i]->dormir))!=0)
+  	printf("error maListeMachine[i]->dormir\n");
+    pthread_cond_signal(&(maListeMachine[i]->attendre));
+    if(pthread_cond_destroy(&(maListeMachine[i]->attendre))!=0)
+  	printf("error maListeMachine[i]->attendre\n");
     pthread_mutex_destroy(&(maListeMachine[i]->mutMachine));
 
     /* libère la machine */
@@ -184,18 +185,28 @@ void killThreads(void)
   //pthread_mutex_destroy(&mtx_menu);
 
   /* Robot d'alimentation */
-  pthread_cond_destroy(&condPose);
+  pthread_cond_signal(&condPose);
+  if(pthread_cond_destroy(&condPose)!=0)
+  	printf("error condPose\n");
 
   /* Superviseur */
   pthread_mutex_destroy(&MitSurRobotAlim);
   pthread_mutex_destroy(&AttentRetrait);
-  pthread_mutex_destroy(&mutexAlim);
+  pthread_mutex_destroy(&mutexAlim); 
   pthread_mutex_destroy(&mutexRetrait);
 
-  pthread_cond_destroy(&RobotAlim);
-  pthread_cond_destroy(&RobotRetrait);
-  pthread_cond_destroy(&RobotSuiviAlim);
-  pthread_cond_destroy(&RobotSuiviRetrait);
+  pthread_cond_signal(&RobotAlim);
+  if(pthread_cond_destroy(&RobotAlim)!=0)
+  	printf("error RobotAlim\n");
+  pthread_cond_signal(&RobotRetrait);
+  if(  pthread_cond_destroy(&RobotRetrait)!=0)
+  	printf("error RobotRetrait\n");
+  pthread_cond_signal(&RobotSuiviAlim);
+  if(  pthread_cond_destroy(&RobotSuiviAlim)!=0)
+  	printf("error RobotSuiviAlim\n");
+  pthread_cond_signal(&RobotSuiviRetrait);
+  if(  pthread_cond_destroy(&RobotSuiviRetrait)!=0)
+  	printf("error RobotSuiviRetrait\n");
 
   /* remet les mode normaux*/
   modeDeg1 = 1; //désactive le mode degrade 1
@@ -255,7 +266,7 @@ void * threadSuiviMachine(void * arg) {
 			pthread_mutex_unlock(&(ma->mutMachine));
 			ma->defaillant = 1;
 			EnMarche = 0;
-			printf("DEFAILLANCE Machine n°%d!! \n Le systeme passe en défaillance", ma->numMachine);
+			printf("DEFAILLANCE Machine n°%d!! \nLe systeme passe en défaillance\n", ma->numMachine);
       			killThreads(); //le systeme meurt
 			break;
 		}
@@ -270,7 +281,7 @@ void * threadSuiviMachine(void * arg) {
 		if(pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachine),&ts) != 0){
 			pthread_mutex_unlock(&(ma->mutMachine));
 			ma->defaillant = 1;
-			printf("DEFAILLANCE Machine n°%d!! \n La machine passe en défaillante", ma->numMachine);
+			printf("DEFAILLANCE Machine n°%d!! \nLa machine passe en défaillante\n", ma->numMachine);
 			killThreadMachine(ma->numMachine);
 			break;
 		}
@@ -336,7 +347,7 @@ void * fonc_SuiviRobotAlim(void * arg) {
 		//mais si le temps dépasse les 5 secondes de traitement (ts), le SYSTEME passe en défaillant
 		if(pthread_cond_timedwait(&RobotSuiviAlim,&mutexAlim,&ts) != 0){
 			pthread_mutex_unlock(&mutexAlim);
-			printf("DEFAILLANCE ROBOT D'ALIMENTATION!! \n Le systeme passe en défaillance");
+			printf("DEFAILLANCE ROBOT D'ALIMENTATION!! \nLe systeme passe en défaillance\n");
       killThreads(); //tout le systeme est KO
 			EnMarche = 0;
 			break;
@@ -364,7 +375,7 @@ void * fonc_SuiviRobotRetrait(void * arg) {
 		if(pthread_cond_timedwait(&RobotSuiviRetrait,&mutexRetrait,&ts) != 0){
 			pthread_mutex_unlock(&mutexRetrait);
 			EnMarche = 0;
-			printf("DEFAILLANCE ROBOT DE RETRAIT!! \n Le systeme passe en défaillance");
+			printf("DEFAILLANCE ROBOT DE RETRAIT!! \nLe systeme passe en défaillance\n");
       killThreads(); //tout le systeme est KO
 			break;
 		}

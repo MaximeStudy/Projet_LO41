@@ -1,4 +1,5 @@
 #include "../header/IHM.h"
+#include "sys/wait.h"
 #define PAR_DEFAUT 1
 #define PERSONNALISE 2
 #define DEFAILLANCE 3
@@ -65,7 +66,6 @@ int selectionChoix(void)
   option = getchar();
   while(getchar() != '\n');
   res = option-48;
-  printf("%d", res);
   while( (res < 1)  || (res > 4))
   {
     fflush(stdin);                    /* clear bad data from buffer */
@@ -86,94 +86,105 @@ void faireQuitter()
 
 void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
 {
-  int nombreMachine=4;
-  int vitesseC=0;
-  printf("Mode par défaut : \n\n");
+pid_t pid;
+if (pid = fork() == 0){
+  
+	  int nombreMachine=4;
+	  int vitesseC=0;
+	  printf("Mode par défaut : \n\n");
 
-  creationMachines(nombreMachine); //temps usinage de machines est i+1
-  creationRobots();
-  initialiserConvoyeur(vitesseC);
-  Superviseur();
+	  creationMachines(nombreMachine); //temps usinage de machines est i+1
+	  creationRobots();
+	  initialiserConvoyeur(vitesseC);
+	  Superviseur();
 
-  sleep(2); //TODO attendre que les threads soient bien en place
-  //pthread_cond_wait(&Cmenu,&mtx_menu);
-  //pthread_mutex_unlock(&mtx_menu);
-  int i;
-  pthread_mutex_lock(&MitSurRobotAlim);
-  for(i=0;i<8;i++)
-  {
-       creerPiece(i%4);
+	  sleep(2); //TODO attendre que les threads soient bien en place
+	  //pthread_cond_wait(&Cmenu,&mtx_menu);
+	  //pthread_mutex_unlock(&mtx_menu);
+	  int i;
+	  pthread_mutex_lock(&MitSurRobotAlim);
+	  for(i=0;i<8;i++)
+	  {
+	       creerPiece(i%4);
+	  }
+	  pthread_mutex_unlock(&MitSurRobotAlim);
+	   /* Creation convoyeur */
+
+	  //afficherConvoyeur();
+	  pthread_cond_wait(&Cmenu,&mtx_menu);
+	  pthread_mutex_unlock(&mtx_menu);
+
+	  for(i=0;i<NbMachine;i++)
+	  {
+	    printf("\nList %d\n",i);
+	    afficherListe(maListeMachine[i]->listeAttente);
+	  }
+	  killThreads();
   }
-  pthread_mutex_unlock(&MitSurRobotAlim);
-   /* Creation convoyeur */
+  else {
+  	wait(0);
+  }
 
-  //afficherConvoyeur();
-  pthread_cond_wait(&Cmenu,&mtx_menu);
-  pthread_mutex_unlock(&mtx_menu);
-
-  for(i=0;i<NbMachine;i++)
-  {
-    printf("\nList %d\n",i);
-    afficherListe(maListeMachine[i]->listeAttente);
- }
- killThreads();
 }
 
 
 
 void fairePerso(void)
 {
-  int nombreMachine;
-  int vitesseC;
-  printf("Menu personnalisé : \n");
-  printf("Vitesse du convoyeur ? (vitesse décroissante)\n");
-  input_nombre(&vitesseC);
+  pid_t pid;
+  if (pid = fork() == 0){
+	  int nombreMachine;
+	  int vitesseC;
+	  printf("Menu personnalisé : \n");
+	  printf("Vitesse du convoyeur ? (vitesse décroissante)\n");
+	  input_nombre(&vitesseC);
 
-  printf("Nombre de machine total ?\n");
-  input_nombre(&nombreMachine);
+	  printf("Nombre de machine total ?\n");
+	  input_nombre(&nombreMachine);
 
-  int i;
-  int j;
-  int tab[nombreMachine];
-  for(i=0;i<nombreMachine;i++)
-  {
-    printf("Nombre de pièces machine %d ?\n",i);
-    input_nombre(tab+i);
+	  int i;
+	  int j;
+	  int tab[nombreMachine];
+	  for(i=0;i<nombreMachine;i++){
+		  printf("Nombre de pièces machine %d ?\n",i);
+		  input_nombre(tab+i);
+	  }
+	  creationMachines(nombreMachine); //temps usinage de machines est i+1
+	  creationRobots();
+	  initialiserConvoyeur(vitesseC);
+	  Superviseur();
 
+	  sleep(2); //attendre que les threads soient bien en place
+	  pthread_mutex_lock(&MitSurRobotAlim);
+	  for(i=0;i<nombreMachine;i++){
+	  	for(j=0;j<tab[i];j++){
+	  		creerPiece(i);
+	  	}
+	  }
+	  pthread_mutex_unlock(&MitSurRobotAlim);
+	   /* Creation convoyeur */
+
+	  //afficherConvoyeur();
+	  pthread_cond_wait(&Cmenu,&mtx_menu);
+	  pthread_mutex_unlock(&mtx_menu);
+
+	  for(i=0;i<NbMachine;i++){
+		  printf("\nList %d\n",i);
+		  afficherListe(maListeMachine[i]->listeAttente);
+	  }
+ 	  killThreads();
   }
-  creationMachines(nombreMachine); //temps usinage de machines est i+1
-  creationRobots();
-  initialiserConvoyeur(vitesseC);
-  Superviseur();
-
-  sleep(2); //attendre que les threads soient bien en place
-  pthread_mutex_lock(&MitSurRobotAlim);
-  for(i=0;i<nombreMachine;i++)
-  {
-    for(j=0;j<tab[i];j++)
-    {
-      creerPiece(i);
-    }
+  else {
+	pthread_cond_wait(&Cmenu,&mtx_menu);
+	pthread_mutex_unlock(&mtx_menu);
+  	wait(0);
   }
-  pthread_mutex_unlock(&MitSurRobotAlim);
-   /* Creation convoyeur */
-
-  //afficherConvoyeur();
-  pthread_cond_wait(&Cmenu,&mtx_menu);
-  pthread_mutex_unlock(&mtx_menu);
-
-  for(i=0;i<NbMachine;i++)
-  {
-    printf("\nList %d\n",i);
-    afficherListe(maListeMachine[i]->listeAttente);
- }
- killThreads();
 }
 void faireDefaillance(void) {
 
   int choix;     // main variables
   choix = selectionChoixDefaillance();
-  while(choix!=5)   //execute so long as choice is not equal to QUIT
+  while(choix!=5)   
   {
       switch(choix)
           {
@@ -202,7 +213,9 @@ void faireDefaillance(void) {
               default:    printf("Oups! Une erreur dans le choix du menu est survenu. ");
                           printf("Veuillez réessayer svp.\n");
           }
-    choix = selectionChoixDefaillance(); /* recommence la selection */
+    
+	if (choix >=1 && choix <= 5) choix =5;
+	else choix = selectionChoixDefaillance(); /* recommence la selection */
  }
 }
 
@@ -242,7 +255,7 @@ void yolo(int num){
   if(num!=SIGINT) printf("Echec");
 
   pthread_mutex_lock(&mtx_menu);
-  pthread_cond_signal(&Cmenu);
+  pthread_cond_broadcast(&Cmenu);
   pthread_mutex_unlock(&mtx_menu);
   return;
 
@@ -251,9 +264,9 @@ void yolo(int num){
 void lancerIHM(void) {
 
 
-struct sigaction sigInt;
-sigInt.sa_handler=yolo;
-sigaction(SIGINT, &sigInt, NULL);
+  struct sigaction sigInt;
+  sigInt.sa_handler=yolo;
+  sigaction(SIGINT, &sigInt, NULL);
   pthread_mutex_init(&mtx_menu,NULL);
   pthread_cond_init(&Cmenu,NULL);
   menu();

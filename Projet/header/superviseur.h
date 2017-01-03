@@ -8,6 +8,7 @@
 #include "../header/convoyeur.h"
 #include "../header/IHM.h"
 
+
 /* Convoyeur*/
 int tailleConv;
 piece * conv; //convoyeur
