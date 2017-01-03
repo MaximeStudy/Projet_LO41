@@ -40,7 +40,7 @@ void * fonc_robotAlim(void * arg) {
 
 
 void * fonc_robotRetrait(void * arg) {
-	piece * p;
+	piece p;
 	while(1)
 	{
 		pthread_cond_wait(&RobotRetrait,&mutexRetrait);//on se fait reveiller par l'un des thread suivi machine
@@ -55,10 +55,10 @@ void * fonc_robotRetrait(void * arg) {
 		while (1){ //on lance la boucle pour retirer la piece
 			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur ); //on attend que ce soit impair
 			if (conv[(tailleConv-1)].num != -1){ //impair donc piece usiné
-				*p = retirerPieceConvoyeur(tailleConv-1); //on retire la piece
+				p = retirerPieceConvoyeur(tailleConv-1); //on retire la piece
 				pthread_mutex_unlock(&mutexConvoyeur);
-				op=p->ope;
-				free(p);
+				op=p.ope;
+				//free(p);
 				break;
 			}
 			pthread_mutex_unlock(&mutexConvoyeur);

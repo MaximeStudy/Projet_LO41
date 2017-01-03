@@ -4,6 +4,7 @@
 #define DEFAILLANCE 3
 #define QUIT 4
 
+
 int selectionChoixDefaillance(void)
 {
   char option;
@@ -17,17 +18,17 @@ int selectionChoixDefaillance(void)
   printf("Faite votre choix : ");
   option = getchar();
   while(getchar() != '\n');
-  res = option-48;
+    res = option-48;
   while( (1 > res)  || (res > 5))
   {
     fflush(stdin);                    /* clear bad data from buffer */
     printf("La selection n'est pas valide. Essayez à nouveau.\n\n");
     printf("Votre choix ? ");
-  option = getchar();
-  while(getchar() != '\n');
-  res = option-48; //code ascii
+    option = getchar();
+    while(getchar() != '\n');
+    res = option-48; //code ascii
   }
-    return res;
+  return res;
 }
 
 int selectionChoix(void)
@@ -43,15 +44,15 @@ int selectionChoix(void)
   option = getchar();
   while(getchar() != '\n');
   res = option-48;
-printf("%d", res);
+  printf("%d", res);
   while( (res < 1)  || (res > 4))
   {
     fflush(stdin);                    /* clear bad data from buffer */
     printf("La selection n'est pas valide. Essayez à nouveau.\n\n");
     printf("Votre choix ? ");
-  option = getchar();
-  while(getchar() != '\n');
-  res = option-48;
+    option = getchar();
+    while(getchar() != '\n');
+    res = option-48;
   }
     return res;
 }
@@ -93,14 +94,31 @@ void faireParDefaut(void) //debug 0 pour lancer l'anomalie, 1 normal
   {
     printf("\nList %d\n",i);
     afficherListe(maListeMachine[i]->listeAttente);
-    //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
  }
  affichage=0;
  killThreads();
+}
 
-
-  //libererConvoyeur();
-
+int input_nombre(int * number)
+{
+    printf("Nombre : ");
+    if ( scanf("%d", number) == 1 ) {
+      if(*number<0)
+      {
+        printf("-> Mauvais format (inférieur à 0), Essayez à nouveau! <-\n");
+        input_nombre(number);
+      }
+      else
+      {
+        return 0;
+      }
+    }
+    else
+    {
+        scanf("%*s"); /* <--this will read and discard whatever caused scanf to fail */
+        printf("-> Mauvais format(il faut un entier), Essayez à nouveau! <-\n");
+        input_nombre(number); // start over
+    }
 }
 
 void fairePerso(void)
@@ -108,17 +126,25 @@ void fairePerso(void)
   int nombreMachine;
   int vitesseC;
   printf("Menu personnalisé : \n");
+  printf("Vitesse du convoyeur ? (vitesse décroissante)\n");
+  //scanf("%d", &vitesseC);
+  input_nombre(&vitesseC);
+
   printf("Nombre de machine total ?\n");
-  scanf(" %d", &nombreMachine);
-  printf("Vitesse du convoyeur ?\n");
-  scanf("%d", &vitesseC);
+  input_nombre(&nombreMachine);
+  //scanf(" %d", &nombreMachine);
+
+
+
   int i;
   int j;
   int tab[nombreMachine];
   for(i=0;i<nombreMachine;i++)
   {
     printf("Nombre de pièces machine %d ?\n",i);
-    scanf("%d",tab+i); //TODO verif int dans le scan f
+    //scanf("%d",tab+i); //TODO verif int dans le scan f
+    input_nombre(tab+i);
+
   }
   creationMachines(nombreMachine); //temps usinage de machines est i+1
   creationRobots();
@@ -139,8 +165,9 @@ void fairePerso(void)
    /* Creation convoyeur */
 
   //afficherConvoyeur();
+  pthread_cond_wait(&Cmenu,&mtx_menu);
+  pthread_mutex_unlock(&mtx_menu);
 
-  sleep(34); //TODO comment on sait quand afficher la fin ?
   affichage=0;
 
   printf("nb attente : %d",nbAttente);
@@ -148,10 +175,8 @@ void fairePerso(void)
   {
     printf("\nList %d\n",i);
     afficherListe(maListeMachine[i]->listeAttente);
-    //effacerListe(maListeMachine[i]->listeAttente); // Libère les ressources
  }
-  //libererConvoyeur();
-  exit(0);
+ killThreads();
 }
 void faireDefaillance(void) {
 
@@ -199,7 +224,7 @@ void menu(void) {
 
     choix = selectionChoix();   // recupere la selection de l'utilisateur
 
-    while(1) 
+    while(1)
     {
         switch(choix)
             {

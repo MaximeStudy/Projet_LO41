@@ -7,7 +7,7 @@ void * fonc_convoyeur(void * arg) {
   while(1)
   {
     //sleep(vitesseConv);
-    usleep(vitesseConv*400000);
+    usleep(vitesseConv*400000+400000);
     pthread_mutex_lock(&mutexConvoyeur);
     tournerConvoyeur();
     if(affichage==1)

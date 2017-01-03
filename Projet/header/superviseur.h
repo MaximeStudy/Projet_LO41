@@ -20,8 +20,8 @@ pthread_mutex_t mutexAlim;
 pthread_mutex_t mutexRetrait;
 pthread_cond_t RobotAlim;
 pthread_cond_t RobotRetrait;
-//pthread_mutex_t mutexSuiviAlim;
-//pthread_mutex_t mutexSuiviRetrait;
+pthread_mutex_t mutexSuiviAlim;
+pthread_mutex_t mutexSuiviRetrait;
 pthread_cond_t RobotSuiviAlim;
 pthread_cond_t RobotSuiviRetrait;
 
