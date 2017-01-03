@@ -179,6 +179,16 @@ void killThreads(void)
   /* Robot d'alimentation */
   pthread_cond_destroy(&condPose);
 
+  /* Superviseur */
+  pthread_mutex_destroy(&MitSurRobotAlim);
+  pthread_mutex_destroy(&AttentRetrait);
+  pthread_mutex_destroy(&mutexAlim);
+  pthread_mutex_destroy(&mutexRetrait);
+
+  pthread_cond_destroy(&RobotAlim);
+  pthread_cond_destroy(&RobotRetrait);
+  pthread_cond_destroy(&RobotSuiviAlim);
+  pthread_cond_destroy(&RobotSuiviRetrait);
 
   /* remet les mode normaux*/
   modeDeg1 = 1; //désactive le mode degrade 1
