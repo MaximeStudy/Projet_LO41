@@ -6,6 +6,9 @@ void * fonc_machine(void * arg) {
 	machine * ma=(machine *)arg;
 	piece p;
 	int indexConv = (int)(2*ma->numMachine+2); //case sur laquelle la machine prend la piece (sur le convoyeur)
+	pthread_mutex_lock(&mtx_menu);
+	pthread_cond_signal(&Cmenu);
+	pthread_mutex_unlock(&mtx_menu);
 	while(1){
 		pthread_cond_wait(&(ma->attendre), &(ma->mutMachine)); //on attend qu'une piece soit arrivé au superviseur
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
@@ -85,9 +88,6 @@ void creationMachines(int nb) {
 
     pthread_create(&(maListeMachine[i]->thread_id), &thread_attr, fonc_machine, maListeMachine[i]);
     printf("Main: thread machine %d creee: id = %ld\n",maListeMachine[i]->numMachine,(maListeMachine[i]->thread_id));
-		if(i==(NbMachine-1))
-		{
-
-		}
   }
+
 }

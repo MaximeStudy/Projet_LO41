@@ -4,6 +4,9 @@
 
 void * fonc_convoyeur(void * arg) {
   int i = 0;
+	pthread_mutex_lock(&mtx_menu);
+	pthread_cond_signal(&Cmenu);
+	pthread_mutex_unlock(&mtx_menu);
   while(1)
   {
     //sleep(vitesseConv);

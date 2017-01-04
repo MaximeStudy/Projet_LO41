@@ -4,6 +4,9 @@
 
 void * fonc_robotAlim(void * arg) {
 
+	pthread_mutex_lock(&mtx_menu);
+	pthread_cond_signal(&Cmenu);
+	pthread_mutex_unlock(&mtx_menu);
 	while(1){
 		pthread_cond_wait(&RobotAlim,&mutexAlim); //on attend de se faire réveiller par l'un des suivi machine
 		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
@@ -15,7 +18,7 @@ void * fonc_robotAlim(void * arg) {
 
 		//boucle pour poser la piece sur le convoyeur en position 0
 		if(modeDeg1==0)
-			sleep(20);
+			sleep(21);
 		while (EnMarche==1){
 			pthread_cond_wait(&condPose,&mutexConvoyeur); //on attend d'être sur un tournant pair pour regarder
 			if (conv[0].num == -1){
@@ -44,6 +47,9 @@ void * fonc_robotAlim(void * arg) {
 
 void * fonc_robotRetrait(void * arg) {
 	piece p;
+	pthread_mutex_lock(&mtx_menu);
+	pthread_cond_signal(&Cmenu);
+	pthread_mutex_unlock(&mtx_menu);
 	while(1)
 	{
 		pthread_cond_wait(&RobotRetrait,&mutexRetrait);//on se fait reveiller par l'un des thread suivi machine
@@ -53,7 +59,7 @@ void * fonc_robotRetrait(void * arg) {
 		pthread_cond_signal(&RobotSuiviRetrait); //on averti le suivi du robot qu'on commence
 		pthread_mutex_unlock(&mutexRetrait);
 		if(modeDeg4==0)
-			sleep(20);
+			sleep(31);
 		int op;
 		while (1){ //on lance la boucle pour retirer la piece
 			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur ); //on attend que ce soit impair

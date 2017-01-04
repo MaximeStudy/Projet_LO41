@@ -6,21 +6,15 @@
 #define QUIT 4
 
 
-void yolo(int num){
+void traitementSIGINTmenu(int num){
   if(num!=SIGINT) printf("Echec");
-  //printf("Yolo");
-  /*pthread_mutex_lock(&mtx_menu);
-  pthread_cond_broadcast(&Cmenu);
-  pthread_mutex_unlock(&mtx_menu); */
+pthread_cond_signal(&Cmenu);
   return;
 }
 
 void yolo2(int num){
   if(num!=SIGINT) printf("Echec");
-  //printf("Yolo2");
-  /*pthread_mutex_lock(&mtx_menu);
-  pthread_cond_broadcast(&Cmenu);
-  pthread_mutex_unlock(&mtx_menu); */
+pthread_cond_signal(&Cmenu);
   return;
 }
 
@@ -117,24 +111,26 @@ if ((pid = fork()) == 0){
 	  int vitesseC=0;
 	  printf("Mode par défaut : \n\n");
 
+		  pthread_mutex_lock(&mtx_menu);
 	  creationMachines(nombreMachine); //temps usinage de machines est i+1
 	  creationRobots();
 	  initialiserConvoyeur(vitesseC);
 	  Superviseur();
 
-	  sleep(2); //TODO attendre que les threads soient bien en place
-	  //pthread_cond_wait(&Cmenu,&mtx_menu);
-	  //pthread_mutex_unlock(&mtx_menu);
 	  int i;
+	  for(i=0;i<nombreMachine*2+5;i++){ //attendre que tous les threads soient en place
+		  pthread_cond_wait(&Cmenu,&mtx_menu);
+		  pthread_mutex_unlock(&mtx_menu);
+	  }
+
 	  pthread_mutex_lock(&MitSurRobotAlim);
 	  for(i=0;i<8;i++)
 	  {
 	       creerPiece(i%4);
 	  }
 	  pthread_mutex_unlock(&MitSurRobotAlim);
-	   /* Creation convoyeur */
 
-	  //afficherConvoyeur();
+
 	  pthread_cond_wait(&Cmenu,&mtx_menu);
 	  pthread_mutex_unlock(&mtx_menu);
 
@@ -182,7 +178,11 @@ void fairePerso(void)
 	  initialiserConvoyeur(vitesseC);
 	  Superviseur();
 
-	  sleep(2); //attendre que les threads soient bien en place
+	  for(i=0;i<nombreMachine*2+5;i++){ //attendre que tous les threads soient en place
+		  pthread_cond_wait(&Cmenu,&mtx_menu);
+		  pthread_mutex_unlock(&mtx_menu);
+	  }
+
 	  pthread_mutex_lock(&MitSurRobotAlim);
 	  for(i=0;i<nombreMachine;i++){
 	  	for(j=0;j<tab[i];j++){
@@ -192,15 +192,14 @@ void fairePerso(void)
 	  pthread_mutex_unlock(&MitSurRobotAlim);
 	   /* Creation convoyeur */
 
-	  //afficherConvoyeur();
 	  pthread_cond_wait(&Cmenu,&mtx_menu);
 	  pthread_mutex_unlock(&mtx_menu);
 
-	  for(i=0;i<NbMachine;i++){
+	  /*for(i=0;i<NbMachine;i++){
 		  printf("\nList %d\n",i);
 		  afficherListe(maListeMachine[i]->listeAttente);
 	  }
- 	  killThreads();
+ 	  killThreads();*/
   }
   else {
     int status;
@@ -280,9 +279,9 @@ void menu(void) {
 
 
 void lancerIHM(void) {
-  actionINT.sa_handler=yolo;
+  actionINT.sa_handler=traitementSIGINTmenu;
   sigaction(SIGINT, &actionINT, NULL);
-  //pthread_mutex_init(&mtx_menu,NULL);
-  //pthread_cond_init(&Cmenu,NULL);
+  pthread_mutex_init(&mtx_menu,NULL);
+  pthread_cond_init(&Cmenu,NULL);
   menu();
 }

@@ -133,7 +133,7 @@ void creerPiece(int ope)
 
 void killThreads(void)
 {
-  //permet de meetre le système en defaillance TODO faire egalement les free
+  //permet de metre le système en defaillance TODO faire egalement les free
   if(pthread_cancel(thread_robotAlim)!=0)
   	printf("error thread_robotAlim\n");
   if(pthread_cancel(thread_robotRetrait)!=0)
@@ -215,6 +215,7 @@ void killThreads(void)
   modeDeg4 = 1; //désactive le mode degrade 4
 
   num=0; //compteur pour les id pieces à 0
+
 }
 
 void killThreadMachine(int numMachine){
@@ -231,6 +232,9 @@ void * threadSuiviMachine(void * arg) {
 	struct timespec ts;
 	int rc;
 
+	pthread_mutex_lock(&mtx_menu);
+	pthread_cond_signal(&Cmenu);
+	pthread_mutex_unlock(&mtx_menu);
 	while(EnMarche == 1 && ma->defaillant == 0){
 
 		if (recupererElementEnTete(ma->listeAttente) == NULL){ //si pas de piece pour cette machine
@@ -333,6 +337,9 @@ void initaliserSuiviMachine()
 
 
 void * fonc_SuiviRobotAlim(void * arg) {
+	pthread_mutex_lock(&mtx_menu);
+	pthread_cond_signal(&Cmenu);
+	pthread_mutex_unlock(&mtx_menu);
 	int rc;
 	struct timeval tp;
 	struct timespec ts;
@@ -360,6 +367,9 @@ void * fonc_SuiviRobotAlim(void * arg) {
 }
 
 void * fonc_SuiviRobotRetrait(void * arg) {
+	pthread_mutex_lock(&mtx_menu);
+	pthread_cond_signal(&Cmenu);
+	pthread_mutex_unlock(&mtx_menu);
 	int rc;
 	struct timeval tp;
 	struct timespec ts;
