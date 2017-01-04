@@ -8,13 +8,12 @@
 
 void traitementSIGINTmenu(int num){
   if(num!=SIGINT) printf("Echec");
-pthread_cond_signal(&Cmenu);
   return;
 }
 
-void yolo2(int num){
+void traitementSIGINTfils(int num){
   if(num!=SIGINT) printf("Echec");
-pthread_cond_signal(&Cmenu);
+  killThreads();
   return;
 }
 
@@ -104,7 +103,7 @@ pid_t pid;
 
 if ((pid = fork()) == 0){
 
-    actionINT.sa_handler=SIG_DFL;
+    actionINT.sa_handler=traitementSIGINTfils;
     sigaction(SIGINT, &actionINT, NULL);
 
 	  int nombreMachine=4;
@@ -154,7 +153,7 @@ void fairePerso(void)
 {
   pid_t pid;
   if ((pid = fork()) == 0){
-    actionINT.sa_handler=SIG_DFL;
+    actionINT.sa_handler=traitementSIGINTfils;
     sigaction(SIGINT, &actionINT, NULL);
 
 	  int nombreMachine;
