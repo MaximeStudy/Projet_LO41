@@ -12,9 +12,14 @@
 #include "../header/convoyeur.h"
 
 struct sigaction actionINT;
+void fonctionPrevenirAffichage();
 
 pthread_cond_t Cmenu;
 pthread_mutex_t mtx_menu;
+pthread_t thread_afficheur;
+
+pthread_cond_t condAffichage;
+pthread_mutex_t mutAffichage;
 
 void lancerIHM(void);
 

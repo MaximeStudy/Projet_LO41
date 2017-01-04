@@ -144,6 +144,8 @@ void killThreads(void)
   	printf("error thread_SuiviRobotAlim\n");
   if(pthread_cancel(thread_SuiviRobotRetrait)!=0)
   	printf("error thread_SuiviRobotRetrait\n");
+  if(pthread_cancel(thread_afficheur)!=0)
+    	printf("error thread_afficheur\n");
 
   int i;
   for (i = 0; i < NbMachine; i++) {
@@ -192,8 +194,9 @@ void killThreads(void)
   /* Superviseur */
   pthread_mutex_destroy(&MitSurRobotAlim);
   pthread_mutex_destroy(&AttentRetrait);
-  pthread_mutex_destroy(&mutexAlim); 
+  pthread_mutex_destroy(&mutexAlim);
   pthread_mutex_destroy(&mutexRetrait);
+  pthread_mutex_destroy(&mutAffichage);
 
   pthread_cond_signal(&RobotAlim);
   if(pthread_cond_destroy(&RobotAlim)!=0)
@@ -207,6 +210,9 @@ void killThreads(void)
   pthread_cond_signal(&RobotSuiviRetrait);
   if(  pthread_cond_destroy(&RobotSuiviRetrait)!=0)
   	printf("error RobotSuiviRetrait\n");
+  pthread_cond_signal(&condAffichage);
+  if(  pthread_cond_destroy(&condAffichage)!=0)
+      printf("error condAffichage\n");
 
   /* remet les mode normaux*/
   modeDeg1 = 1; //désactive le mode degrade 1

@@ -3,6 +3,8 @@
 
 #include "../header/machine.h"
 #include "../header/superviseur.h"
+#include "../header/IHM.h"
+
 pthread_t thread_convoyeur;
 pthread_mutex_t mutexConvoyeur;
 int vitesseConv;

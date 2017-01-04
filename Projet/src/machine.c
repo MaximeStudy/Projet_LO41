@@ -4,7 +4,6 @@
 
 void * fonc_machine(void * arg) {
 	machine * ma=(machine *)arg;
-	piece p;
 	int indexConv = (int)(2*ma->numMachine+2); //case sur laquelle la machine prend la piece (sur le convoyeur)
 	pthread_mutex_lock(&mtx_menu);
 	pthread_cond_signal(&Cmenu);
@@ -19,7 +18,11 @@ void * fonc_machine(void * arg) {
 		while (1){
 			pthread_cond_wait(&condPose,&mutexConvoyeur); //on attend d'être sur un tournant pair pour regarder
 			if (conv[indexConv].num != -1 && conv[indexConv].ope == ma->ope){
-				p = retirerPieceConvoyeur(indexConv); //on retire la piece
+				ma->piece = retirerPieceConvoyeur(indexConv); //on retire la piece
+
+				/* Dire à l'affichage que j'ai retiré une piece dans le conv*/
+		    fonctionPrevenirAffichage();
+
 				pthread_mutex_unlock(&mutexConvoyeur);
 				break;
 			}
@@ -43,26 +46,34 @@ void * fonc_machine(void * arg) {
 		while (1){
 			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur);//on attend d'être sur un tournant impair pour regarder
 			if (conv[indexConv+1].num == -1){
-				ajouterPieceConvoyeur(indexConv+1,p); //on pose la piece
+				ajouterPieceConvoyeur(indexConv+1,ma->piece); //on pose la piece
 				pthread_mutex_unlock(&mutexConvoyeur);
+				ma->piece=*pieceVideConv;
+				/* Dire à l'affichage que j'ai posé une piece dans le conv*/
+		    fonctionPrevenirAffichage();
 				break;
 			}
 			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
 		}
-    		pthread_mutex_lock(&(ma->mutMachine));
+    pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->dormir)); //on signal qu'on a posé la piece sur le convoyeur à SuiviMachine
 		pthread_mutex_unlock(&(ma->mutMachine));
 
 	}
-
 	pthread_exit(NULL);
-
 }
+
+
 
 void creationMachines(int nb) {
   int i;
 	NbMachine=nb;
   maListeMachine=malloc(NbMachine*sizeof(machine));
+
+	/* création de mutex et signal pour l'affichage */
+	pthread_cond_init(&condAffichage,NULL);
+	pthread_mutex_init(&mutAffichage,NULL);
+
   //permet d'eviter la fuite memoire
   if(pthread_attr_init(&thread_attr)!=0) {
       printf("pthrad_attr_init error");
@@ -84,6 +95,11 @@ void creationMachines(int nb) {
     nouvelleMachine->ope=i;
     nouvelleMachine->listeAttente=NULL;
     nouvelleMachine->defaillant=0;
+
+		piece pieceMachine;
+		pieceMachine.num=-1;
+		pieceMachine.ope=-1;
+		nouvelleMachine->piece=pieceMachine;
     maListeMachine[i]=nouvelleMachine;
 
     pthread_create(&(maListeMachine[i]->thread_id), &thread_attr, fonc_machine, maListeMachine[i]);

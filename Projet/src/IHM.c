@@ -5,6 +5,13 @@
 #define DEFAILLANCE 3
 #define QUIT 4
 
+void fonctionPrevenirAffichage()
+{
+  /* Dire à l'affichage que j'ai modifié qqch d'important*/
+  pthread_mutex_lock(&mutAffichage);
+  pthread_cond_signal(&condAffichage);
+  pthread_mutex_unlock(&mutAffichage);
+}
 
 void traitementSIGINTmenu(int num){
   if(num!=SIGINT) printf("Echec");
@@ -15,6 +22,88 @@ void traitementSIGINTfils(int num){
   if(num!=SIGINT) printf("Echec");
   killThreads();
   return;
+}
+
+void * fonc_afficher(void * arg)
+{
+      while(1)
+      {
+        pthread_cond_wait(&condAffichage, &mutAffichage);
+        printf("*****************************************\n");
+        int i;
+        int j=0;
+
+        for(i=0;i<tailleConv;i++)
+        {
+            if(i==0)
+            {
+              if(conv[i].num!=-1 && pieceRobotAlim->num!=-1)
+              {
+                printf("conv[%2d] : %5d  %5d (Alim)\n",i, conv[i].num, pieceRobotAlim->num);
+              }
+              else if (conv[i].num!=-1 && pieceRobotAlim->num==-1) {
+                printf("conv[%2d] : %5d  %5s (Alim)\n",i, conv[i].num, "vide");
+              }
+              else if (conv[i].num==-1 && pieceRobotAlim->num==-1) {
+                printf("conv[%2d] : %5s  %5s (Alim)\n",i, "vide", "vide");
+              }
+              else {
+                printf("conv[%2d] : %5s  %5d (Alim)\n",i, "vide", pieceRobotAlim->num);
+              }
+            }
+            else if (i==tailleConv-2)
+            {
+              if(conv[i].num!=-1 && pieceRobotRetrait.num!=-1)
+              {
+                printf("conv[%2d] : %5d  %5d (Retr)\n",i, conv[i].num, pieceRobotRetrait.num);
+              }
+              else if (conv[i].num!=-1 && pieceRobotRetrait.num==-1) {
+                printf("conv[%2d] : %5d  %5s (Retr)\n",i, conv[i].num, "vide");
+              }
+              else if (conv[i].num==-1 && pieceRobotRetrait.num==-1) {
+                printf("conv[%2d] : %5s  %5s (Retr)\n",i, "vide", "vide");
+              }
+              else {
+                printf("conv[%2d] : %5s  %5d (Retr)\n",i, "vide", pieceRobotRetrait.num);
+              }
+            }
+            else if((i%2==0))
+            {
+              if(conv[i].num!=-1 && maListeMachine[j]->piece.num!=-1)
+              {
+                printf("conv[%2d] : %5d  %5d M[%2d]\n",i, conv[i].num, maListeMachine[j]->piece.num,j);
+              }
+              else if (conv[i].num!=-1 && maListeMachine[j]->piece.num==-1) {
+                printf("conv[%2d] : %5d  %5s M[%2d]\n",i, conv[i].num, "vide",j);
+              }
+              else if (conv[i].num==-1 && maListeMachine[j]->piece.num==-1) {
+                printf("conv[%2d] : %5s  %5s M[%2d]\n",i, "vide", "vide",j);
+              }
+              else {
+                printf("conv[%2d] : %5s  %5d M[%2d]\n",i, "vide", maListeMachine[j]->piece.num,j);
+              }
+
+              //printf("conv[%2d] : %5d M[%2d] : %d\n",i, conv[i].num, j, maListeMachine[j]->piece.num);
+              j=j+1;
+            }
+            else
+            {
+              /* On affiche */
+              if(conv[i].num!=-1)
+              {
+                printf("conv[%2d] : %5d \n",i, conv[i].num);
+              }
+              else {
+                printf("conv[%2d] : %5s \n",i,"vide");
+              }
+            }
+        }
+      }
+}
+
+void lancerThreadAfficheur()
+{
+  pthread_create(&thread_afficheur, &thread_attr, fonc_afficher, NULL);
 }
 
 int input_nombre(int * number)
@@ -110,7 +199,7 @@ if ((pid = fork()) == 0){
 	  int vitesseC=0;
 	  printf("Mode par défaut : \n\n");
 
-		  pthread_mutex_lock(&mtx_menu);
+		pthread_mutex_lock(&mtx_menu);
 	  creationMachines(nombreMachine); //temps usinage de machines est i+1
 	  creationRobots();
 	  initialiserConvoyeur(vitesseC);
@@ -121,6 +210,7 @@ if ((pid = fork()) == 0){
 		  pthread_cond_wait(&Cmenu,&mtx_menu);
 		  pthread_mutex_unlock(&mtx_menu);
 	  }
+    lancerThreadAfficheur();
 
 	  pthread_mutex_lock(&MitSurRobotAlim);
 	  for(i=0;i<8;i++)
@@ -128,7 +218,6 @@ if ((pid = fork()) == 0){
 	       creerPiece(i%4);
 	  }
 	  pthread_mutex_unlock(&MitSurRobotAlim);
-
 
 	  pthread_cond_wait(&Cmenu,&mtx_menu);
 	  pthread_mutex_unlock(&mtx_menu);
@@ -181,7 +270,7 @@ void fairePerso(void)
 		  pthread_cond_wait(&Cmenu,&mtx_menu);
 		  pthread_mutex_unlock(&mtx_menu);
 	  }
-
+    lancerThreadAfficheur();
 	  pthread_mutex_lock(&MitSurRobotAlim);
 	  for(i=0;i<nombreMachine;i++){
 	  	for(j=0;j<tab[i];j++){
