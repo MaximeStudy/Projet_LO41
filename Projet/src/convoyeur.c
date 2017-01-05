@@ -7,15 +7,11 @@ void * fonc_convoyeur() {
   int i = 0;
 	pthread_mutex_lock(&mtx_menu);
 	pthread_mutex_unlock(&mtx_menu);
-printf("ok conv\n");
   while(1)
   {
-    //sleep(vitesseConv);
     usleep(vitesseConv*400000+400000);
     pthread_mutex_lock(&mutexConvoyeur);
     tournerConvoyeur();
-
-    //afficherConvoyeur();
 
     fonctionPrevenirAffichage();
 
@@ -57,7 +53,6 @@ void libererConvoyeur(){
 
 void tournerConvoyeur()
 {
-	//afficherConvoyeur();
 	piece tmp=conv[tailleConv-1];
 	int i;
 	for(i=tailleConv-1;i>0;i--)
@@ -81,26 +76,8 @@ piece retirerPieceConvoyeur(int position)
   {
     piece p = conv[position];
     conv[position]=*pieceVideConv;
-    printf("numéro %d\n",p.num );
     return p;
   }
   return *pieceVideConv;
 }
 
-void afficherConvoyeur()
-{
-    /* Tant que l'on n'est pas au bout de la liste */
-    printf("*****************************************\n");
-    int i;
-    for(i=0;i<tailleConv;i++)
-    {
-        /* On affiche */
-        if(conv[i].num!=-1)
-        {
-          printf("conv[%2d] : %5d \n",i, conv[i].num);
-        }
-        else {
-          printf("conv[%2d] : %5s \n",i,"vide");
-        }
-    }
-}

@@ -6,7 +6,6 @@ void * fonc_robotAlim() {
 
 	pthread_mutex_lock(&mtx_menu);
 	pthread_mutex_unlock(&mtx_menu);
-printf("ok RA\n");
 	while(1){
 		pthread_cond_wait(&RobotAlim,&mutexAlim); //on attend de se faire réveiller par l'un des suivi machine
 		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
@@ -19,8 +18,7 @@ printf("ok RA\n");
 		//boucle pour poser la piece sur le convoyeur en position 0
 		if(modeDeg1==0)
 			sleep(21);
-		while (EnMarche==1){
-printf("ROBOT ALIM BUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
+		while (1){
 			pthread_cond_wait(&condPose,&mutexConvoyeur); //on attend d'être sur un tournant pair pour regarder
 			if (conv[0].num == -1){
 				ajouterPieceConvoyeur(0,*pieceRobotAlim);
@@ -31,22 +29,18 @@ printf("ROBOT ALIM BUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
 
 			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
 		}
-printf("1111111111111111111111111111111111111111111111111111111111\n");
 
 		pthread_mutex_lock(&mutexAlim);
 		pthread_cond_signal(&RobotSuiviAlim); //on averti le suivi du robot qu'on a fini
-printf("22222222222222222222222222222222222222222222222222222222222\n");
 
 		pthread_cond_wait(&RobotAlim,&mutexAlim); //synchro pour que ça termine pas avant
 		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
-printf("R33333333333333333333333333333333333333333333333333333333333\n");
 		pieceRobotAlim=pieceVideConv; // on a livré le piece
 		fonctionPrevenirAffichage();
 		pthread_mutex_unlock(&(maListeMachine[numMachine]->mutMachine));
 		pthread_cond_signal(&(maListeMachine[numMachine]->dormir)); //on previent le suivi de machine qu'on a posé la piece pour qu'il libère le mutex et qu'un autre thread de suivi puisse poser sa piece.
 		pthread_mutex_unlock(&(maListeMachine[numMachine]->mutMachine)); //on libere le mutex
 
-printf("44444444444444444444444444444444444444444444444444444444444\n");
 	}
 	pthread_exit(NULL);
 }
@@ -55,7 +49,6 @@ printf("44444444444444444444444444444444444444444444444444444444444\n");
 void * fonc_robotRetrait() {
 	pthread_mutex_lock(&mtx_menu);
 	pthread_mutex_unlock(&mtx_menu);
-printf("ok RR\n");
 	while(1)
 	{
 		pthread_cond_wait(&RobotRetrait,&mutexRetrait);//on se fait reveiller par l'un des thread suivi machine
@@ -83,20 +76,19 @@ printf("ok RR\n");
 
 		pthread_mutex_lock(&mutexRetrait);
 		pthread_cond_signal(&RobotSuiviRetrait); //on averti le suivi du robot qu'on a fini
-		pthread_mutex_unlock(&mutexRetrait);
 
 		pthread_cond_wait(&RobotRetrait,&mutexRetrait); //synchro pour que ça termine pas avant
 		pthread_mutex_unlock(&mutexRetrait); //on débloque le mutex
 
 		sleep(1); //pour avoir le temps de voir la piece sur l'affichage
 
+		pieceRobotRetrait=pieceVideSortie; // on a livré le piece
+		fonctionPrevenirAffichage();
 		//on retourne dormir et on unlock mutexRetrait.
 		pthread_mutex_lock(&(maListeMachine[op]->mutMachine));
 		pthread_cond_signal(&(maListeMachine[op]->dormir));
 		pthread_mutex_unlock(&(maListeMachine[op]->mutMachine));
 
-		pieceRobotRetrait=pieceVideSortie; // on a livré le piece
-		fonctionPrevenirAffichage();
 
 	}
 	pthread_exit(NULL);

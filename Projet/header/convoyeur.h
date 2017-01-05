@@ -13,6 +13,5 @@ void libererConvoyeur();
 void tournerConvoyeur();
 void ajouterPieceConvoyeur(int position, piece p);
 piece retirerPieceConvoyeur(int position);
-void afficherConvoyeur();
 
 #endif

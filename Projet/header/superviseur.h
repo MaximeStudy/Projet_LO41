@@ -46,7 +46,6 @@ void killThreads(void);
 piece *pieceRobotAlim;
 piece pieceRobotRetrait;
 piece pieceVideSortie;
-int EnMarche;
 
 //affichage mode degrade
 int modeDeg1;

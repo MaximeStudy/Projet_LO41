@@ -8,7 +8,6 @@ void * fonc_machine(void * arg) {
 	pthread_mutex_lock(&mtx_menu);
 	pthread_mutex_unlock(&mtx_menu);
 
-printf("ok Machine\n");
 	while(1){
 		pthread_cond_wait(&(ma->attendre), &(ma->mutMachine)); //on attend qu'une piece soit arrivé au superviseur
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
@@ -94,7 +93,6 @@ void creationMachines(int nb) {
     nouvelleMachine->tpsUsinage=i+1;
     nouvelleMachine->ope=i;
     nouvelleMachine->listeAttente=NULL;
-    nouvelleMachine->defaillant=0;
 
 	piece pieceMachine;
 	pieceMachine.num=-1;

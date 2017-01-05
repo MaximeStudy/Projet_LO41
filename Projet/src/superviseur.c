@@ -125,7 +125,6 @@ void creerPiece(int ope)
 
   if (test == 1){ //si la liste d'attente pour la machine était vide
   	pthread_cond_signal(&(maListeMachine[ope]->dormir)); //on previent qu'il y a une pieces
-printf("On reveille Machine %d\n", ope);
   	pthread_mutex_unlock(&(maListeMachine[ope]->mutMachine)); //on libere le mutex
   }
 
@@ -183,10 +182,6 @@ void killThreads(void)
   /* convoyeur */
   pthread_mutex_destroy(&mutexConvoyeur);
 
-  /* IHM*/
-  //pthread_cond_destroy(&Cmenu);
-  //pthread_mutex_destroy(&mtx_menu);
-
   /* Robot d'alimentation */
   pthread_cond_signal(&condPose);
   if(pthread_cond_destroy(&condPose)!=0)
@@ -240,19 +235,13 @@ void * threadSuiviMachine(void * arg) {
 
 	pthread_mutex_lock(&mtx_menu);
 	pthread_mutex_unlock(&mtx_menu);
-printf("ok SMachine\n");
-	while(EnMarche == 1 && ma->defaillant == 0){
+	while(1){
 
 		if (recupererElementEnTete(ma->listeAttente) == NULL){ //si pas de piece pour cette machine
-printf("Machine s'endort %d\n", ma->numMachine);
 			pthread_cond_wait(&(ma->dormir),&(ma->mutMachine)); //on s'endort le temps d'en recevoir une
-usleep(500);
-printf("Machine se reveille %d\n", ma->numMachine);
 			pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 		}
 		pthread_mutex_lock(&MitSurRobotAlim); //on tente de lock pour poser la piece sur le robot d'alim
-
-		printf("Machine %d\n", ma->numMachine);
 
 		pieceRobotAlim = recupererElementEnTete(ma->listeAttente); //on la pose
 		ma->listeAttente=supprimerElementEnTete(ma->listeAttente); //on supprime la piece de la liste d'attente
@@ -280,8 +269,6 @@ printf("Machine se reveille %d\n", ma->numMachine);
 		//mais si le temps dépasse les 15 secondes de traitement (ts), le SYSTEME passe en défaillant
 		if(pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachine),&ts) != 0){
 			pthread_mutex_unlock(&(ma->mutMachine));
-			ma->defaillant = 1;
-			EnMarche = 0;
 			printf("DEFAILLANCE Machine n°%d!! \nLe systeme passe en défaillance\n", ma->numMachine);
       			killThreads(); //le systeme meurt
 			break;
@@ -296,7 +283,6 @@ printf("Machine se reveille %d\n", ma->numMachine);
 		//mais si le temps dépasse les 20 secondes de traitement (ts), la MACHINE passe en défaillante
 		if(pthread_cond_timedwait(&(ma->dormir),&(ma->mutMachine),&ts) != 0){
 			pthread_mutex_unlock(&(ma->mutMachine));
-			ma->defaillant = 1;
 			printf("DEFAILLANCE Machine n°%d!! \nLa machine passe en défaillante\n", ma->numMachine);
 			killThreadMachine(ma->numMachine);
 			break;
@@ -351,10 +337,9 @@ void initaliserSuiviMachine()
 void * fonc_SuiviRobotAlim() {
 	pthread_mutex_lock(&mtx_menu);
 	pthread_mutex_unlock(&mtx_menu);
-printf("ok SRA\n");
 	struct timeval tp;
 	struct timespec ts;
-	while(EnMarche == 1){
+	while(1){
 		pthread_cond_wait(&RobotSuiviAlim,&mutexAlim);
 		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
 		gettimeofday(&tp, NULL);
@@ -367,10 +352,8 @@ printf("ok SRA\n");
 			pthread_mutex_unlock(&mutexAlim);
 			printf("DEFAILLANCE ROBOT D'ALIMENTATION!! \nLe systeme passe en défaillance\n");
       			killThreads(); //tout le systeme est KO
-			EnMarche = 0;
 			break;
 		}
-printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
     		pthread_cond_signal(&RobotAlim);
 
 		pthread_mutex_unlock(&mutexAlim);
@@ -381,10 +364,9 @@ printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
 void * fonc_SuiviRobotRetrait() {
 	pthread_mutex_lock(&mtx_menu);
 	pthread_mutex_unlock(&mtx_menu);
-printf("ok SRR\n");
 	struct timeval tp;
 	struct timespec ts;
-	while(EnMarche == 1){
+	while(11){
 		pthread_cond_wait(&RobotSuiviRetrait,&mutexRetrait);
 		pthread_mutex_unlock(&mutexRetrait);
 		gettimeofday(&tp, NULL);
@@ -395,7 +377,6 @@ printf("ok SRR\n");
 		//mais si le temps dépasse les 20 secondes de traitement (ts), le SYSTEME passe en défaillant
 		if(pthread_cond_timedwait(&RobotSuiviRetrait,&mutexRetrait,&ts) != 0){
 			pthread_mutex_unlock(&mutexRetrait);
-			EnMarche = 0;
 			printf("DEFAILLANCE ROBOT DE RETRAIT!! \nLe systeme passe en défaillance\n");
       killThreads(); //tout le systeme est KO
 			break;
@@ -409,8 +390,6 @@ printf("ok SRR\n");
 
 void Superviseur()
 {
-	EnMarche = 1; //le systeme fonctionne
-
 	initaliserSuiviMachine();
 	pthread_create(&thread_SuiviRobotAlim, &thread_attr, fonc_SuiviRobotAlim, NULL);
 	pthread_create(&thread_SuiviRobotRetrait, &thread_attr, fonc_SuiviRobotRetrait, NULL);

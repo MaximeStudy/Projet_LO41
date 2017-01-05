@@ -277,7 +277,7 @@ void fairePerso(void)
 
 	  pthread_mutex_unlock(&mtx_menu);
 	  
-	  usleep(50);
+	  sleep(1);
 	  
 	  pthread_mutex_lock(&mtx_menu);
 	  pthread_mutex_unlock(&mtx_menu);
