@@ -6,8 +6,9 @@ void * fonc_machine(void * arg) {
 	machine * ma=(machine *)arg;
 	int indexConv = (int)(2*ma->numMachine+2); //case sur laquelle la machine prend la piece (sur le convoyeur)
 	pthread_mutex_lock(&mtx_menu);
-	pthread_cond_signal(&Cmenu);
 	pthread_mutex_unlock(&mtx_menu);
+
+printf("ok Machine\n");
 	while(1){
 		pthread_cond_wait(&(ma->attendre), &(ma->mutMachine)); //on attend qu'une piece soit arrivé au superviseur
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
@@ -21,8 +22,7 @@ void * fonc_machine(void * arg) {
 				ma->piece = retirerPieceConvoyeur(indexConv); //on retire la piece
 
 				/* Dire à l'affichage que j'ai retiré une piece dans le conv*/
-		    fonctionPrevenirAffichage();
-
+		    		fonctionPrevenirAffichage();
 				pthread_mutex_unlock(&mutexConvoyeur);
 				break;
 			}
@@ -47,7 +47,7 @@ void * fonc_machine(void * arg) {
 			pthread_cond_wait(&condPose/*2*/,&mutexConvoyeur);//on attend d'être sur un tournant impair pour regarder
 			if (conv[indexConv+1].num == -1){
 				ajouterPieceConvoyeur(indexConv+1,ma->piece); //on pose la piece
-				pthread_mutex_unlock(&mutexConvoyeur);
+ 				pthread_mutex_unlock(&mutexConvoyeur);
 				ma->piece=*pieceVideConv;
 				/* Dire à l'affichage que j'ai posé une piece dans le conv*/
 		    fonctionPrevenirAffichage();
@@ -55,22 +55,22 @@ void * fonc_machine(void * arg) {
 			}
 			pthread_mutex_unlock(&mutexConvoyeur);//on débloque le mutex
 		}
-    pthread_mutex_lock(&(ma->mutMachine));
+    		pthread_mutex_lock(&(ma->mutMachine));
 		pthread_cond_signal(&(ma->dormir)); //on signal qu'on a posé la piece sur le convoyeur à SuiviMachine
 		pthread_mutex_unlock(&(ma->mutMachine));
 
 	}
+
 	pthread_exit(NULL);
+
 }
-
-
 
 void creationMachines(int nb) {
   int i;
 	NbMachine=nb;
   maListeMachine=malloc(NbMachine*sizeof(machine));
 
-	/* création de mutex et signal pour l'affichage */
+/* création de mutex et signal pour l'affichage */
 	pthread_cond_init(&condAffichage,NULL);
 	pthread_mutex_init(&mutAffichage,NULL);
 
@@ -96,10 +96,11 @@ void creationMachines(int nb) {
     nouvelleMachine->listeAttente=NULL;
     nouvelleMachine->defaillant=0;
 
-		piece pieceMachine;
-		pieceMachine.num=-1;
-		pieceMachine.ope=-1;
-		nouvelleMachine->piece=pieceMachine;
+	piece pieceMachine;
+	pieceMachine.num=-1;
+	pieceMachine.ope=-1;
+	nouvelleMachine->piece=pieceMachine;
+
     maListeMachine[i]=nouvelleMachine;
 
     pthread_create(&(maListeMachine[i]->thread_id), &thread_attr, fonc_machine, maListeMachine[i]);

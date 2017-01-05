@@ -123,8 +123,9 @@ void creerPiece(int ope)
   }
   maListeMachine[ope]->listeAttente=ajouterEnFin(maListeMachine[ope]->listeAttente, *nouvellePiece);
 
-  if (test ==1){ //si la liste d'attente pour la machine était vide
+  if (test == 1){ //si la liste d'attente pour la machine était vide
   	pthread_cond_signal(&(maListeMachine[ope]->dormir)); //on previent qu'il y a une pieces
+printf("On reveille Machine %d\n", ope);
   	pthread_mutex_unlock(&(maListeMachine[ope]->mutMachine)); //on libere le mutex
   }
 
@@ -194,7 +195,7 @@ void killThreads(void)
   /* Superviseur */
   pthread_mutex_destroy(&MitSurRobotAlim);
   pthread_mutex_destroy(&AttentRetrait);
-  pthread_mutex_destroy(&mutexAlim);
+  pthread_mutex_destroy(&mutexAlim); 
   pthread_mutex_destroy(&mutexRetrait);
   pthread_mutex_destroy(&mutAffichage);
 
@@ -236,18 +237,23 @@ void * threadSuiviMachine(void * arg) {
 	machine * ma=(machine *)arg;
 	struct timeval tp;
 	struct timespec ts;
-	int rc;
 
 	pthread_mutex_lock(&mtx_menu);
-	pthread_cond_signal(&Cmenu);
 	pthread_mutex_unlock(&mtx_menu);
+printf("ok SMachine\n");
 	while(EnMarche == 1 && ma->defaillant == 0){
 
 		if (recupererElementEnTete(ma->listeAttente) == NULL){ //si pas de piece pour cette machine
+printf("Machine s'endort %d\n", ma->numMachine);
 			pthread_cond_wait(&(ma->dormir),&(ma->mutMachine)); //on s'endort le temps d'en recevoir une
+usleep(500);
+printf("Machine se reveille %d\n", ma->numMachine);
 			pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 		}
 		pthread_mutex_lock(&MitSurRobotAlim); //on tente de lock pour poser la piece sur le robot d'alim
+
+		printf("Machine %d\n", ma->numMachine);
+
 		pieceRobotAlim = recupererElementEnTete(ma->listeAttente); //on la pose
 		ma->listeAttente=supprimerElementEnTete(ma->listeAttente); //on supprime la piece de la liste d'attente
 		pthread_mutex_lock(&mutexAlim);
@@ -266,7 +272,7 @@ void * threadSuiviMachine(void * arg) {
 		//on attend que la machine recoive la piece et lance le traitement
 
 
-		rc = gettimeofday(&tp, NULL);
+		gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
 		ts.tv_sec += 15;
@@ -282,7 +288,7 @@ void * threadSuiviMachine(void * arg) {
 		}
 		pthread_mutex_unlock(&(ma->mutMachine)); //on libere le mutex
 
-		rc = gettimeofday(&tp, NULL);
+		gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
 		ts.tv_sec += 20;
@@ -342,17 +348,16 @@ void initaliserSuiviMachine()
 }
 
 
-void * fonc_SuiviRobotAlim(void * arg) {
+void * fonc_SuiviRobotAlim() {
 	pthread_mutex_lock(&mtx_menu);
-	pthread_cond_signal(&Cmenu);
 	pthread_mutex_unlock(&mtx_menu);
-	int rc;
+printf("ok SRA\n");
 	struct timeval tp;
 	struct timespec ts;
 	while(EnMarche == 1){
 		pthread_cond_wait(&RobotSuiviAlim,&mutexAlim);
 		pthread_mutex_unlock(&mutexAlim); //on débloque le mutex
-		rc = gettimeofday(&tp, NULL);
+		gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
 		ts.tv_sec += 20;
@@ -361,28 +366,28 @@ void * fonc_SuiviRobotAlim(void * arg) {
 		if(pthread_cond_timedwait(&RobotSuiviAlim,&mutexAlim,&ts) != 0){
 			pthread_mutex_unlock(&mutexAlim);
 			printf("DEFAILLANCE ROBOT D'ALIMENTATION!! \nLe systeme passe en défaillance\n");
-      killThreads(); //tout le systeme est KO
+      			killThreads(); //tout le systeme est KO
 			EnMarche = 0;
 			break;
 		}
-    pthread_cond_signal(&RobotAlim);
+printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+    		pthread_cond_signal(&RobotAlim);
 
 		pthread_mutex_unlock(&mutexAlim);
 	}
 	pthread_exit(NULL);
 }
 
-void * fonc_SuiviRobotRetrait(void * arg) {
+void * fonc_SuiviRobotRetrait() {
 	pthread_mutex_lock(&mtx_menu);
-	pthread_cond_signal(&Cmenu);
 	pthread_mutex_unlock(&mtx_menu);
-	int rc;
+printf("ok SRR\n");
 	struct timeval tp;
 	struct timespec ts;
 	while(EnMarche == 1){
 		pthread_cond_wait(&RobotSuiviRetrait,&mutexRetrait);
 		pthread_mutex_unlock(&mutexRetrait);
-		rc = gettimeofday(&tp, NULL);
+		gettimeofday(&tp, NULL);
 		ts.tv_sec = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec*1000;
 		ts.tv_sec += 30;

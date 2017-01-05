@@ -1,14 +1,13 @@
 #include "../header/convoyeur.h"
 #include "../header/include.h"
 #include "../header/robot.h"
+#include "../header/IHM.h"
 
-
-
-void * fonc_convoyeur(void * arg) {
+void * fonc_convoyeur() {
   int i = 0;
 	pthread_mutex_lock(&mtx_menu);
-	pthread_cond_signal(&Cmenu);
 	pthread_mutex_unlock(&mtx_menu);
+printf("ok conv\n");
   while(1)
   {
     //sleep(vitesseConv);
@@ -16,16 +15,15 @@ void * fonc_convoyeur(void * arg) {
     pthread_mutex_lock(&mutexConvoyeur);
     tournerConvoyeur();
 
-    /* Dire à l'affichage que le convoyeur tourne*/
-    fonctionPrevenirAffichage();
     //afficherConvoyeur();
+
+    fonctionPrevenirAffichage();
 
     if (i % 2 == 0){
       pthread_cond_broadcast(&condPose);//fonctionne comme un pthread_cond_signal mais prévient TOUS les threads en wait
       i++;
     }
     else {
-      //pthread_cond_broadcast(&condPose2);
       i = 0;
     }
     pthread_mutex_unlock(&mutexConvoyeur);
@@ -86,6 +84,7 @@ piece retirerPieceConvoyeur(int position)
     printf("numéro %d\n",p.num );
     return p;
   }
+  return *pieceVideConv;
 }
 
 void afficherConvoyeur()
@@ -93,11 +92,8 @@ void afficherConvoyeur()
     /* Tant que l'on n'est pas au bout de la liste */
     printf("*****************************************\n");
     int i;
-    int j=0;
-
     for(i=0;i<tailleConv;i++)
     {
-
         /* On affiche */
         if(conv[i].num!=-1)
         {
@@ -107,5 +103,4 @@ void afficherConvoyeur()
           printf("conv[%2d] : %5s \n",i,"vide");
         }
     }
-
 }

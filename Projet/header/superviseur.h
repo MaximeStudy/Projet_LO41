@@ -39,14 +39,13 @@ void creerPiece(int ope);
 void * threadSuiviMachine(void * arg);
 void initaliserSuiviMachine();
 void Superviseur();
-void * fonc_SuiviRobotAlim(void * arg);
-void * fonc_SuiviRobotRetrait(void * arg);
+void * fonc_SuiviRobotAlim();
+void * fonc_SuiviRobotRetrait();
 void killThreads(void);
 
 piece *pieceRobotAlim;
 piece pieceRobotRetrait;
 piece pieceVideSortie;
-
 int EnMarche;
 
 //affichage mode degrade
