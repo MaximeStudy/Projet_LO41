@@ -68,7 +68,6 @@ void * fonc_robotRetrait() {
 				fonctionPrevenirAffichage();
 				pthread_mutex_unlock(&mutexConvoyeur);
 				op=pieceRobotRetrait.ope;
-				//free(p);
 				break;
 			}
 			pthread_mutex_unlock(&mutexConvoyeur);
